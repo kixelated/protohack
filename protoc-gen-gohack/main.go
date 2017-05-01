@@ -5,10 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/golang/protobuf/proto"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+	proto "github.com/golang/protobuf/proto"
+	proto_plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 
-	"github.com/kixelated/protohack/generator"
+	plugin "github.com/kixelated/protohack/plugin"
+	plugin_base "github.com/kixelated/protohack/plugin/base"
 )
 
 func main() {
@@ -24,28 +25,46 @@ func run() (err error) {
 		return err
 	}
 
-	request := &plugin.CodeGeneratorRequest{}
+	request := new(proto_plugin.CodeGeneratorRequest)
 	err = proto.Unmarshal(data, request)
 	if err != nil {
 		return err
 	}
 
-	response := &plugin.CodeGeneratorResponse{}
-	for _, requestFile := range request.ProtoFile {
-		content, err := generator.Generate(requestFile)
-		if err != nil {
-			response.Error = proto.String(err.Error())
-			break
+	plugins := loadPlugins()
+
+	response := new(proto_plugin.CodeGeneratorResponse)
+
+	for i, inputName := range request.FileToGenerate {
+		inputProto := request.ProtoFile[i]
+
+		for _, generate := range plugins {
+			pluginRequest := &plugin.Request{
+				Name: inputName,
+				File: inputProto,
+			}
+
+			pluginResponse, err := generate(pluginRequest)
+			if err != nil {
+				return err
+			}
+
+			responseFile := new(proto_plugin.CodeGeneratorResponse_File)
+
+			if pluginResponse.Name != "" {
+				responseFile.Name = &pluginResponse.Name
+			}
+
+			if pluginResponse.InsertionPoint != "" {
+				responseFile.InsertionPoint = &pluginResponse.InsertionPoint
+			}
+
+			if pluginResponse.Content != "" {
+				responseFile.Content = &pluginResponse.Content
+			}
+
+			response.File = append(response.File, responseFile)
 		}
-
-		name := generator.FileName(*requestFile.Name)
-
-		fileResponse := &plugin.CodeGeneratorResponse_File{
-			Name:    proto.String(name),
-			Content: proto.String(content),
-		}
-
-		response.File = append(response.File, fileResponse)
 	}
 
 	data, err = proto.Marshal(response)
@@ -59,4 +78,9 @@ func run() (err error) {
 	}
 
 	return nil
+}
+
+func loadPlugins() (plugins []plugin.Plugin) {
+	plugins = append(plugins, plugin_base.Generate)
+	return plugins
 }
