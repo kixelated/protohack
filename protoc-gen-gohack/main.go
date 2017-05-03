@@ -6,12 +6,17 @@ import (
 	"os"
 
 	"github.com/golang/protobuf/proto"
+	proto_descriptor "github.com/golang/protobuf/protoc-gen-go/descriptor"
+	proto_plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 
+	"github.com/kixelated/protohack/descriptor"
 	"github.com/kixelated/protohack/generator"
-	"github.com/kixelated/protohack/protoc-gen-gohack/plugin"
 )
 
 func main() {
+	log.SetFlags(0)
+	log.SetOutput(os.Stderr)
+
 	err := run()
 	if err != nil {
 		log.Fatal(err)
@@ -24,24 +29,33 @@ func run() (err error) {
 		return err
 	}
 
-	request := new(plugin.CodeGeneratorRequest)
+	request := new(proto_plugin.CodeGeneratorRequest)
 	err = proto.Unmarshal(data, request)
 	if err != nil {
 		return err
 	}
 
-	// Create the generator with all of the file descriptors.
-	generator := generator.New(request.GetProtoFile())
+	// For some reason, the request contains a slice of files instead of a set.
+	// This conversion is not entirely neccisary but is more consistent.
+	filesProto := &proto_descriptor.FileDescriptorSet{
+		File: request.GetProtoFile(),
+	}
 
-	response := new(plugin.CodeGeneratorResponse)
+	// Wrap the proto objects with helper fields and methods.
+	files := descriptor.NewFileSet(filesProto)
+
+	// Create the generator with all of the file descriptors.
+	generator := generator.New(files)
+
+	response := new(proto_plugin.CodeGeneratorResponse)
 
 	for _, name := range request.FileToGenerate {
-		name, content, err := generator.File(name)
+		name, content := generator.File(name)
 		if err != nil {
 			return err
 		}
 
-		responseFile := &plugin.CodeGeneratorResponse_File{
+		responseFile := &proto_plugin.CodeGeneratorResponse_File{
 			Name:    proto.String(name),
 			Content: proto.String(content),
 		}

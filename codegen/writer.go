@@ -10,6 +10,10 @@ type Writer struct {
 	indent int
 }
 
+func (w *Writer) Reset() {
+	w.b.Reset()
+}
+
 func (w *Writer) Line(parts ...string) {
 	text := strings.Join(parts, "")
 
