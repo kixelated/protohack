@@ -2,6 +2,7 @@ package generator
 
 import (
 	"path"
+	"strconv"
 	"strings"
 
 	proto_desc "github.com/golang/protobuf/protoc-gen-go/descriptor"
@@ -78,6 +79,7 @@ func (g *Generator) writeTypes(file *desc.File) {
 
 	for _, enum := range file.Enums {
 		g.writeEnumType(enum)
+		g.writeEnumValues(enum)
 	}
 }
 
@@ -94,6 +96,7 @@ func (g *Generator) writeMessageType(message *desc.Message) {
 
 	for _, enum := range message.Enums {
 		g.writeEnumType(enum)
+		g.writeEnumValues(enum)
 	}
 
 	for _, message := range message.Messages {
@@ -103,6 +106,22 @@ func (g *Generator) writeMessageType(message *desc.Message) {
 
 func (g *Generator) writeEnumType(enum *desc.Enum) {
 	g.w.Line(`type ` + goEnumType(enum) + ` int32`)
+}
+
+func (g *Generator) writeEnumValues(enum *desc.Enum) {
+	g.w.Line(`const (`)
+	g.w.In()
+
+	enumType := goEnumType(enum)
+	for _, enumValue := range enum.Values {
+		enumValueType := goEnumValueType(enumValue)
+		enumValueNumber := strconv.FormatInt(int64(enumValue.Proto.GetNumber()), 10)
+
+		g.w.Line(enumValueType + ` ` + enumType + ` = ` + enumValueNumber)
+	}
+
+	g.w.Out()
+	g.w.Line(`)`)
 }
 
 func (g *Generator) writeFieldType(field *desc.Field) {
@@ -137,6 +156,17 @@ func goEnumType(enum *desc.Enum) (name string) {
 	parts = append(parts, enum.Proto.GetName())
 
 	name = strings.Join(parts, "_")
+	return name
+}
+
+func goEnumValueType(enumValue *desc.EnumValue) (name string) {
+	name = enumValue.Proto.GetName()
+
+	enum := enumValue.Parent
+	if enum.ParentMessage != nil {
+		name = goMessageType(enum.ParentMessage) + "_" + name
+	}
+
 	return name
 }
 

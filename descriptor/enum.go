@@ -10,6 +10,8 @@ type Enum struct {
 	// Only one of the two will be set.
 	ParentFile    *File
 	ParentMessage *Message
+
+	Values []*EnumValue
 }
 
 func NewEnum(proto *desc.EnumDescriptorProto, parent interface{}) (enum *Enum) {
@@ -23,6 +25,11 @@ func NewEnum(proto *desc.EnumDescriptorProto, parent interface{}) (enum *Enum) {
 		enum.ParentMessage = realParent
 	default:
 		panic("unknown parent type")
+	}
+
+	for _, valueProto := range enum.Proto.GetValue() {
+		enumValue := NewEnumValue(valueProto, enum)
+		enum.Values = append(enum.Values, enumValue)
 	}
 
 	return enum
