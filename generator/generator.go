@@ -55,6 +55,7 @@ func (g *Generator) writeFile(file *desc.File) {
 
 	g.writeImports(file)
 	g.writeTypes(file)
+	g.writeMethods(file)
 }
 
 func goPackageName(file *desc.File) (name string) {
@@ -70,6 +71,9 @@ func goPackageName(file *desc.File) (name string) {
 }
 
 func (g *Generator) writeImports(file *desc.File) {
+	g.w.Line(`import "github.com/kixelated/protohack/proto"`)
+	// TODO
+	g.w.Line(`var _ = proto.WIRETYPE_VARINT`)
 }
 
 func (g *Generator) writeTypes(file *desc.File) {
@@ -105,7 +109,7 @@ func (g *Generator) writeMessageType(message *desc.Message) {
 }
 
 func (g *Generator) writeEnumType(enum *desc.Enum) {
-	g.w.Line(`type ` + goEnumType(enum) + ` int32`)
+	g.w.Line(`type ` + goEnumType(enum) + ` int`)
 }
 
 func (g *Generator) writeEnumValues(enum *desc.Enum) {
@@ -214,7 +218,7 @@ func goFieldType(field *desc.Field) (name string) {
 		name = "[]byte"
 	case proto_desc.FieldDescriptorProto_TYPE_ENUM:
 		enum := field.EnumType()
-		name = "*" + goEnumType(enum)
+		name = goEnumType(enum)
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED32:
 		name = "int32"
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED64:
@@ -232,4 +236,94 @@ func goFieldType(field *desc.Field) (name string) {
 	}
 
 	return name
+}
+
+func (g *Generator) writeMethods(file *desc.File) {
+	for _, message := range file.Messages {
+		g.writeMessageMethods(message)
+	}
+}
+
+func (g *Generator) writeMessageMethods(message *desc.Message) {
+	g.writeMessageMarshal(message)
+	g.writeMessageUnmarshal(message)
+
+	for _, nested := range message.Messages {
+		g.writeMessageMethods(nested)
+	}
+}
+
+func (g *Generator) writeMessageMarshal(message *desc.Message) {
+	g.w.Line(`func (m ` + goMessageType(message) + `) Marshal() (data []byte, err error) {`)
+	g.w.In()
+
+	g.w.Line(`var w proto.Writer`)
+
+	for _, field := range message.Fields {
+		varName := `m.` + goFieldName(field)
+		id := strconv.FormatInt(int64(field.Proto.GetNumber()), 10)
+
+		repeated := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED)
+		// TODO
+		// packed := field.Proto.GetOptions().GetPacked()
+
+		if repeated {
+			g.w.Line(`for _, x := range ` + varName + ` {`).In()
+			varName = `x`
+		}
+
+		switch field.Proto.GetType() {
+		case proto_desc.FieldDescriptorProto_TYPE_DOUBLE:
+			g.w.Line(`w.WriteDouble(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_FLOAT:
+			g.w.Line(`w.WriteFloat(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_INT64:
+			g.w.Line(`w.WriteInt64(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_UINT64:
+			g.w.Line(`w.WriteUInt64(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_INT32:
+			g.w.Line(`w.WriteInt32(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_UINT32:
+			g.w.Line(`w.WriteUInt32(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_FIXED64:
+			g.w.Line(`w.WriteFixed64(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_FIXED32:
+			g.w.Line(`w.WriteFixed32(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_BOOL:
+			g.w.Line(`w.WriteBool(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_STRING:
+			g.w.Line(`w.WriteString(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_GROUP:
+			g.w.Line(`err = w.WriteGroup(` + id + `, ` + varName + `)`)
+			g.w.Line(`if err != nil {`).In().Line(`return nil, err`).Out().Line(`}`)
+		case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
+			g.w.Line(`err = w.WriteMessage(` + id + `, ` + varName + `)`)
+			g.w.Line(`if err != nil {`).In().Line(`return nil, err`).Out().Line(`}`)
+		case proto_desc.FieldDescriptorProto_TYPE_BYTES:
+			g.w.Line(`w.WriteBytes(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_ENUM:
+			g.w.Line(`w.WriteEnum(` + id + `, int(` + varName + `))`)
+		case proto_desc.FieldDescriptorProto_TYPE_SFIXED32:
+			g.w.Line(`w.WriteSFixed32(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_SFIXED64:
+			g.w.Line(`w.WriteSFixed64(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_SINT32:
+			g.w.Line(`w.WriteSInt32(` + id + `, ` + varName + `)`)
+		case proto_desc.FieldDescriptorProto_TYPE_SINT64:
+			g.w.Line(`w.WriteSInt64(` + id + `, ` + varName + `)`)
+		}
+
+		if repeated {
+			g.w.Out().Line(`}`)
+		}
+	}
+
+	g.w.Line(`return w.Bytes(), nil`)
+
+	g.w.Out()
+	g.w.Line(`}`)
+}
+
+func (g *Generator) writeMessageUnmarshal(message *desc.Message) {
+
 }
