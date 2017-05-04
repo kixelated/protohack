@@ -185,44 +185,51 @@ func goFieldName(field *desc.Field) (name string) {
 func goFieldType(field *desc.Field) (name string) {
 	switch field.Proto.GetType() {
 	case proto_desc.FieldDescriptorProto_TYPE_DOUBLE:
-		return "float64"
+		name = "float64"
 	case proto_desc.FieldDescriptorProto_TYPE_FLOAT:
-		return "float32"
+		name = "float32"
 	case proto_desc.FieldDescriptorProto_TYPE_INT64:
-		return "int64"
+		name = "int64"
 	case proto_desc.FieldDescriptorProto_TYPE_UINT64:
-		return "uint64"
+		name = "uint64"
 	case proto_desc.FieldDescriptorProto_TYPE_INT32:
-		return "int32"
+		name = "int32"
 	case proto_desc.FieldDescriptorProto_TYPE_UINT32:
-		return "uint32"
+		name = "uint32"
 	case proto_desc.FieldDescriptorProto_TYPE_FIXED64:
-		return "uint64"
+		name = "uint64"
 	case proto_desc.FieldDescriptorProto_TYPE_FIXED32:
-		return "uint32"
+		name = "uint32"
 	case proto_desc.FieldDescriptorProto_TYPE_BOOL:
-		return "bool"
+		name = "bool"
 	case proto_desc.FieldDescriptorProto_TYPE_STRING:
-		return "string"
+		name = "string"
 	case proto_desc.FieldDescriptorProto_TYPE_GROUP:
-		panic("groups are unsupported")
+		message := field.MessageType()
+		name = "*" + goMessageType(message)
 	case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
 		message := field.MessageType()
-		return "*" + goMessageType(message)
+		name = "*" + goMessageType(message)
 	case proto_desc.FieldDescriptorProto_TYPE_BYTES:
-		return "[]byte"
+		name = "[]byte"
 	case proto_desc.FieldDescriptorProto_TYPE_ENUM:
 		enum := field.EnumType()
-		return "*" + goEnumType(enum)
+		name = "*" + goEnumType(enum)
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED32:
-		return "int32"
+		name = "int32"
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED64:
-		return "int64"
+		name = "int64"
 	case proto_desc.FieldDescriptorProto_TYPE_SINT32:
-		return "int32"
+		name = "int32"
 	case proto_desc.FieldDescriptorProto_TYPE_SINT64:
-		return "int64"
+		name = "int64"
 	default:
 		panic("unknown field type")
 	}
+
+	if field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED {
+		name = "[]" + name
+	}
+
+	return name
 }

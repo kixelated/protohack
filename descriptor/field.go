@@ -25,7 +25,10 @@ func (field *Field) Parents() (set *FileSet, file *File, messages []*Message) {
 }
 
 func (field *Field) MessageType() (message *Message) {
-	if field.Proto.GetType() != desc.FieldDescriptorProto_TYPE_MESSAGE {
+	switch field.Proto.GetType() {
+	case desc.FieldDescriptorProto_TYPE_MESSAGE:
+	case desc.FieldDescriptorProto_TYPE_GROUP:
+	default:
 		panic("field is not a message type")
 	}
 
