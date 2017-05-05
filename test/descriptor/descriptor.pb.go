@@ -234,9 +234,11 @@ type GeneratedCodeInfo_Annotation struct {
 func (m FileDescriptorSet) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	for _, x := range m.File {
-		err = w.WriteMessage(1, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(1, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -248,43 +250,55 @@ func (m FileDescriptorProto) Marshal() (data []byte, err error) {
 	for _, x := range m.Dependency {
 		w.WriteString(3, x)
 	}
+	for _, x := range m.MessageType {
+		if x != nil {
+			err = w.WriteMessage(4, x)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	for _, x := range m.EnumType {
+		if x != nil {
+			err = w.WriteMessage(5, x)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	for _, x := range m.Service {
+		if x != nil {
+			err = w.WriteMessage(6, x)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	for _, x := range m.Extension {
+		if x != nil {
+			err = w.WriteMessage(7, x)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	if m.Options != nil {
+		err = w.WriteMessage(8, m.Options)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if m.SourceCodeInfo != nil {
+		err = w.WriteMessage(9, m.SourceCodeInfo)
+		if err != nil {
+			return nil, err
+		}
+	}
 	for _, x := range m.PublicDependency {
 		w.WriteInt32(10, x)
 	}
 	for _, x := range m.WeakDependency {
 		w.WriteInt32(11, x)
-	}
-	for _, x := range m.MessageType {
-		err = w.WriteMessage(4, x)
-		if err != nil {
-			return nil, err
-		}
-	}
-	for _, x := range m.EnumType {
-		err = w.WriteMessage(5, x)
-		if err != nil {
-			return nil, err
-		}
-	}
-	for _, x := range m.Service {
-		err = w.WriteMessage(6, x)
-		if err != nil {
-			return nil, err
-		}
-	}
-	for _, x := range m.Extension {
-		err = w.WriteMessage(7, x)
-		if err != nil {
-			return nil, err
-		}
-	}
-	err = w.WriteMessage(8, m.Options)
-	if err != nil {
-		return nil, err
-	}
-	err = w.WriteMessage(9, m.SourceCodeInfo)
-	if err != nil {
-		return nil, err
 	}
 	w.WriteString(12, m.Syntax)
 	return w.Bytes(), nil
@@ -293,49 +307,65 @@ func (m DescriptorProto) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteString(1, m.Name)
 	for _, x := range m.Field {
-		err = w.WriteMessage(2, x)
-		if err != nil {
-			return nil, err
-		}
-	}
-	for _, x := range m.Extension {
-		err = w.WriteMessage(6, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(2, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	for _, x := range m.NestedType {
-		err = w.WriteMessage(3, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(3, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	for _, x := range m.EnumType {
-		err = w.WriteMessage(4, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(4, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	for _, x := range m.ExtensionRange {
-		err = w.WriteMessage(5, x)
+		if x != nil {
+			err = w.WriteMessage(5, x)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	for _, x := range m.Extension {
+		if x != nil {
+			err = w.WriteMessage(6, x)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	if m.Options != nil {
+		err = w.WriteMessage(7, m.Options)
 		if err != nil {
 			return nil, err
 		}
 	}
 	for _, x := range m.OneofDecl {
-		err = w.WriteMessage(8, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(8, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
-	err = w.WriteMessage(7, m.Options)
-	if err != nil {
-		return nil, err
-	}
 	for _, x := range m.ReservedRange {
-		err = w.WriteMessage(9, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(9, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	for _, x := range m.ReservedName {
@@ -358,26 +388,30 @@ func (m DescriptorProto_ReservedRange) Marshal() (data []byte, err error) {
 func (m FieldDescriptorProto) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteString(1, m.Name)
+	w.WriteString(2, m.Extendee)
 	w.WriteInt32(3, m.Number)
 	w.WriteEnum(4, int(m.Label))
 	w.WriteEnum(5, int(m.Type))
 	w.WriteString(6, m.TypeName)
-	w.WriteString(2, m.Extendee)
 	w.WriteString(7, m.DefaultValue)
+	if m.Options != nil {
+		err = w.WriteMessage(8, m.Options)
+		if err != nil {
+			return nil, err
+		}
+	}
 	w.WriteInt32(9, m.OneofIndex)
 	w.WriteString(10, m.JsonName)
-	err = w.WriteMessage(8, m.Options)
-	if err != nil {
-		return nil, err
-	}
 	return w.Bytes(), nil
 }
 func (m OneofDescriptorProto) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteString(1, m.Name)
-	err = w.WriteMessage(2, m.Options)
-	if err != nil {
-		return nil, err
+	if m.Options != nil {
+		err = w.WriteMessage(2, m.Options)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return w.Bytes(), nil
 }
@@ -385,14 +419,18 @@ func (m EnumDescriptorProto) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteString(1, m.Name)
 	for _, x := range m.Value {
-		err = w.WriteMessage(2, x)
+		if x != nil {
+			err = w.WriteMessage(2, x)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	if m.Options != nil {
+		err = w.WriteMessage(3, m.Options)
 		if err != nil {
 			return nil, err
 		}
-	}
-	err = w.WriteMessage(3, m.Options)
-	if err != nil {
-		return nil, err
 	}
 	return w.Bytes(), nil
 }
@@ -400,9 +438,11 @@ func (m EnumValueDescriptorProto) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteString(1, m.Name)
 	w.WriteInt32(2, m.Number)
-	err = w.WriteMessage(3, m.Options)
-	if err != nil {
-		return nil, err
+	if m.Options != nil {
+		err = w.WriteMessage(3, m.Options)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return w.Bytes(), nil
 }
@@ -410,14 +450,18 @@ func (m ServiceDescriptorProto) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteString(1, m.Name)
 	for _, x := range m.Method {
-		err = w.WriteMessage(2, x)
+		if x != nil {
+			err = w.WriteMessage(2, x)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	if m.Options != nil {
+		err = w.WriteMessage(3, m.Options)
 		if err != nil {
 			return nil, err
 		}
-	}
-	err = w.WriteMessage(3, m.Options)
-	if err != nil {
-		return nil, err
 	}
 	return w.Bytes(), nil
 }
@@ -426,9 +470,11 @@ func (m MethodDescriptorProto) Marshal() (data []byte, err error) {
 	w.WriteString(1, m.Name)
 	w.WriteString(2, m.InputType)
 	w.WriteString(3, m.OutputType)
-	err = w.WriteMessage(4, m.Options)
-	if err != nil {
-		return nil, err
+	if m.Options != nil {
+		err = w.WriteMessage(4, m.Options)
+		if err != nil {
+			return nil, err
+		}
 	}
 	w.WriteBool(5, m.ClientStreaming)
 	w.WriteBool(6, m.ServerStreaming)
@@ -438,23 +484,25 @@ func (m FileOptions) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteString(1, m.JavaPackage)
 	w.WriteString(8, m.JavaOuterClassname)
-	w.WriteBool(10, m.JavaMultipleFiles)
-	w.WriteBool(20, m.JavaGenerateEqualsAndHash)
-	w.WriteBool(27, m.JavaStringCheckUtf8)
 	w.WriteEnum(9, int(m.OptimizeFor))
+	w.WriteBool(10, m.JavaMultipleFiles)
 	w.WriteString(11, m.GoPackage)
 	w.WriteBool(16, m.CcGenericServices)
 	w.WriteBool(17, m.JavaGenericServices)
 	w.WriteBool(18, m.PyGenericServices)
+	w.WriteBool(20, m.JavaGenerateEqualsAndHash)
 	w.WriteBool(23, m.Deprecated)
+	w.WriteBool(27, m.JavaStringCheckUtf8)
 	w.WriteBool(31, m.CcEnableArenas)
 	w.WriteString(36, m.ObjcClassPrefix)
 	w.WriteString(37, m.CsharpNamespace)
 	w.WriteString(39, m.SwiftPrefix)
 	for _, x := range m.UninterpretedOption {
-		err = w.WriteMessage(999, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(999, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -466,9 +514,11 @@ func (m MessageOptions) Marshal() (data []byte, err error) {
 	w.WriteBool(3, m.Deprecated)
 	w.WriteBool(7, m.MapEntry)
 	for _, x := range m.UninterpretedOption {
-		err = w.WriteMessage(999, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(999, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -477,14 +527,16 @@ func (m FieldOptions) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteEnum(1, int(m.Ctype))
 	w.WriteBool(2, m.Packed)
-	w.WriteEnum(6, int(m.Jstype))
-	w.WriteBool(5, m.Lazy)
 	w.WriteBool(3, m.Deprecated)
+	w.WriteBool(5, m.Lazy)
+	w.WriteEnum(6, int(m.Jstype))
 	w.WriteBool(10, m.Weak)
 	for _, x := range m.UninterpretedOption {
-		err = w.WriteMessage(999, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(999, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -492,9 +544,11 @@ func (m FieldOptions) Marshal() (data []byte, err error) {
 func (m OneofOptions) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	for _, x := range m.UninterpretedOption {
-		err = w.WriteMessage(999, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(999, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -504,9 +558,11 @@ func (m EnumOptions) Marshal() (data []byte, err error) {
 	w.WriteBool(2, m.AllowAlias)
 	w.WriteBool(3, m.Deprecated)
 	for _, x := range m.UninterpretedOption {
-		err = w.WriteMessage(999, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(999, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -515,9 +571,11 @@ func (m EnumValueOptions) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteBool(1, m.Deprecated)
 	for _, x := range m.UninterpretedOption {
-		err = w.WriteMessage(999, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(999, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -526,9 +584,11 @@ func (m ServiceOptions) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	w.WriteBool(33, m.Deprecated)
 	for _, x := range m.UninterpretedOption {
-		err = w.WriteMessage(999, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(999, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -538,9 +598,11 @@ func (m MethodOptions) Marshal() (data []byte, err error) {
 	w.WriteBool(33, m.Deprecated)
 	w.WriteEnum(34, int(m.IdempotencyLevel))
 	for _, x := range m.UninterpretedOption {
-		err = w.WriteMessage(999, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(999, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -548,9 +610,11 @@ func (m MethodOptions) Marshal() (data []byte, err error) {
 func (m UninterpretedOption) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	for _, x := range m.Name {
-		err = w.WriteMessage(2, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(2, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	w.WriteString(3, m.IdentifierValue)
@@ -570,9 +634,11 @@ func (m UninterpretedOption_NamePart) Marshal() (data []byte, err error) {
 func (m SourceCodeInfo) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	for _, x := range m.Location {
-		err = w.WriteMessage(1, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(1, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil
@@ -595,9 +661,11 @@ func (m SourceCodeInfo_Location) Marshal() (data []byte, err error) {
 func (m GeneratedCodeInfo) Marshal() (data []byte, err error) {
 	var w proto.Writer
 	for _, x := range m.Annotation {
-		err = w.WriteMessage(1, x)
-		if err != nil {
-			return nil, err
+		if x != nil {
+			err = w.WriteMessage(1, x)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return w.Bytes(), nil

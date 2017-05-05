@@ -2,6 +2,7 @@ package generator
 
 import (
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -259,7 +260,12 @@ func (g *Generator) writeMessageMarshal(message *desc.Message) {
 
 	g.w.Line(`var w proto.Writer`)
 
-	for _, field := range message.Fields {
+	fields := message.Fields
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Proto.GetNumber() < fields[j].Proto.GetNumber()
+	})
+
+	for _, field := range fields {
 		varName := `m.` + goFieldName(field)
 		id := strconv.FormatInt(int64(field.Proto.GetNumber()), 10)
 
@@ -294,11 +300,15 @@ func (g *Generator) writeMessageMarshal(message *desc.Message) {
 		case proto_desc.FieldDescriptorProto_TYPE_STRING:
 			g.w.Line(`w.WriteString(` + id + `, ` + varName + `)`)
 		case proto_desc.FieldDescriptorProto_TYPE_GROUP:
+			g.w.Line(`if ` + varName + ` != nil {`).In()
 			g.w.Line(`err = w.WriteGroup(` + id + `, ` + varName + `)`)
 			g.w.Line(`if err != nil {`).In().Line(`return nil, err`).Out().Line(`}`)
+			g.w.Out().Line(`}`)
 		case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
+			g.w.Line(`if ` + varName + ` != nil {`).In()
 			g.w.Line(`err = w.WriteMessage(` + id + `, ` + varName + `)`)
 			g.w.Line(`if err != nil {`).In().Line(`return nil, err`).Out().Line(`}`)
+			g.w.Out().Line(`}`)
 		case proto_desc.FieldDescriptorProto_TYPE_BYTES:
 			g.w.Line(`w.WriteBytes(` + id + `, ` + varName + `)`)
 		case proto_desc.FieldDescriptorProto_TYPE_ENUM:
