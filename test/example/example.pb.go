@@ -1,38 +1,61 @@
 package example
 import "github.com/kixelated/protohack/proto"
 var _ = proto.WIRETYPE_VARINT
-type Test struct {
-	Label string
-	Type int32
-	Reps []int64
-	Optionalgroup *Test_OptionalGroup
-	Number int32
+type Person struct {
 	Name string
+	Id int32
+	Email string
+	Phone []*Person_PhoneNumber
 }
-type Test_OptionalGroup struct {
-	RequiredField string
-}
-type FOO int
+type Person_PhoneType int
 const (
-	X FOO = 17
+	Person_MOBILE Person_PhoneType = 0
+	Person_HOME Person_PhoneType = 1
+	Person_WORK Person_PhoneType = 2
 )
-func (m Test) Marshal() (data []byte, err error) {
-	var w proto.Writer
-	w.WriteString(1, m.Label)
-	w.WriteInt32(2, m.Type)
-	for _, x := range m.Reps {
-		w.WriteInt64(3, x)
-	}
-	err = w.WriteGroup(4, m.Optionalgroup)
-	if err != nil {
-		return nil, err
-	}
-	w.WriteInt32(6, m.Number)
-	w.WriteString(7, m.Name)
-	return w.Bytes(), nil
+type Person_PhoneNumber struct {
+	Number string
+	Type Person_PhoneType
 }
-func (m Test_OptionalGroup) Marshal() (data []byte, err error) {
-	var w proto.Writer
-	w.WriteString(5, m.RequiredField)
-	return w.Bytes(), nil
+func (m Person) Marshal() (data []byte, err error) {
+	data = make([]byte, m.MarshalSize())
+	_ = m.MarshalTo(data)
+	return data, nil
+}
+func (m Person) MarshalTo(data []byte) (n int) {
+	n += proto.WriteFieldString(data[n:], 1, m.Name)
+	n += proto.WriteFieldInt32(data[n:], 2, m.Id)
+	n += proto.WriteFieldString(data[n:], 3, m.Email)
+	for _, x := range m.Phone {
+		if x != nil {
+			n += proto.WriteFieldMessage(data[n:], 4, x)
+		}
+	}
+	return n
+}
+func (m Person) MarshalSize() (n int) {
+	n += proto.SizeFieldString(1, m.Name)
+	n += proto.SizeFieldInt32(2, m.Id)
+	n += proto.SizeFieldString(3, m.Email)
+	for _, x := range m.Phone {
+		if x != nil {
+			n += proto.SizeFieldMessage(4, x)
+		}
+	}
+	return n
+}
+func (m Person_PhoneNumber) Marshal() (data []byte, err error) {
+	data = make([]byte, m.MarshalSize())
+	_ = m.MarshalTo(data)
+	return data, nil
+}
+func (m Person_PhoneNumber) MarshalTo(data []byte) (n int) {
+	n += proto.WriteFieldString(data[n:], 1, m.Number)
+	n += proto.WriteFieldEnum(data[n:], 2, int(m.Type))
+	return n
+}
+func (m Person_PhoneNumber) MarshalSize() (n int) {
+	n += proto.SizeFieldString(1, m.Number)
+	n += proto.SizeFieldEnum(2, int(m.Type))
+	return n
 }

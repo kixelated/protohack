@@ -65,5 +65,10 @@ func (file *File) FindEnum(name string) (enum *Enum) {
 }
 
 func (file *File) FullName() (name string) {
-	return "." + file.Proto.GetPackage()
+	if file.Proto.Package != nil {
+		return "." + file.Proto.GetPackage()
+	} else {
+		return ""
+	}
+
 }
