@@ -4,10 +4,6 @@ import (
 	"math"
 )
 
-func WriteKey(data []byte, id int, t WireType) (n int) {
-	return WriteVarInt64(data, uint64(id<<3)|uint64(t))
-}
-
 func WriteFieldDouble(data []byte, id int, x float64) (n int) {
 	if x == 0 {
 		return 0
@@ -102,7 +98,7 @@ func WriteFieldBool(data []byte, id int, x bool) (n int) {
 	}
 
 	n += WriteKey(data[n:], id, WIRETYPE_VARINT)
-	n += WriteFixed8(data[n:], 2)
+	n += WriteFixed8(data[n:], 1)
 
 	return n
 }
@@ -119,7 +115,13 @@ func WriteFieldGroup(data []byte, id int, x MarshallerTo) (n int) {
 
 	n += WriteKey(data[n:], id, WIRETYPE_GROUP_START)
 	n += WriteVarInt(data[n:], uint(size))
-	n += x.MarshalTo(data[n:])
+
+	temp, err := x.MarshalTo(data[n:])
+	if err != nil {
+		panic(err.Error()) // TODO
+	}
+
+	n += temp
 	n += WriteKey(data[n:], id, WIRETYPE_GROUP_END)
 
 	return n
@@ -133,7 +135,13 @@ func WriteFieldMessage(data []byte, id int, x MarshallerTo) (n int) {
 
 	n += WriteKey(data[n:], id, WIRETYPE_LENGTH)
 	n += WriteVarInt(data[n:], uint(size))
-	n += x.MarshalTo(data[n:])
+
+	temp, err := x.MarshalTo(data[n:])
+	if err != nil {
+		panic(err.Error()) // TODO
+	}
+
+	n += temp
 
 	return n
 }

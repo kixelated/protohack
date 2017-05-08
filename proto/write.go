@@ -1,5 +1,9 @@
 package proto
 
+import (
+	"math"
+)
+
 func WriteFixed8(data []byte, x uint8) (n int) {
 	data[0] = byte(x)
 	return 1
@@ -70,4 +74,101 @@ func WriteZigZag32(data []byte, x uint32) (n int) {
 func WriteZigZag64(data []byte, x uint64) (n int) {
 	// TODO Optimize
 	return WriteVarInt64(data, (x<<1)^(x>>63))
+}
+
+func WriteKey(data []byte, id int, t WireType) (n int) {
+	return WriteVarInt64(data, uint64(id<<3)|uint64(t))
+}
+
+func WriteDouble(data []byte, x float64) (n int) {
+	return WriteFixed64(data[n:], math.Float64bits(x))
+}
+
+func WriteFloat(data []byte, x float32) (n int) {
+	return WriteFixed32(data[n:], math.Float32bits(x))
+}
+
+func WriteInt64(data []byte, x int64) (n int) {
+	return WriteVarInt64(data[n:], uint64(x))
+}
+
+func WriteUInt64(data []byte, x uint64) (n int) {
+	return WriteVarInt64(data[n:], x)
+}
+
+func WriteInt32(data []byte, x int32) (n int) {
+	return WriteVarInt32(data[n:], uint32(x))
+}
+
+func WriteUInt32(data []byte, x uint32) (n int) {
+	return WriteVarInt32(data[n:], x)
+}
+
+func WriteBool(data []byte, x bool) (n int) {
+	return WriteByte(data[n:], 1)
+}
+
+func WriteString(data []byte, x string) (n int) {
+	return WriteBytes(data, []byte(x))
+}
+
+func WriteGroup(data []byte, x MarshallerTo) (n int) {
+	size := x.MarshalSize()
+	n += WriteVarInt(data[n:], uint(size))
+
+	temp, err := x.MarshalTo(data[n:])
+	if err != nil {
+		panic(err.Error()) // TODO
+	}
+
+	n += temp
+
+	return n
+}
+
+func WriteMessage(data []byte, x MarshallerTo) (n int) {
+	size := x.MarshalSize()
+	n += WriteVarInt(data[n:], uint(size))
+
+	temp, err := x.MarshalTo(data[n:])
+	if err != nil {
+		panic(err.Error()) // TODO
+	}
+
+	n += temp
+
+	return n
+}
+
+func WriteByte(data []byte, x byte) (n int) {
+	data[0] = x
+	return 1
+}
+
+func WriteBytes(data []byte, x []byte) (n int) {
+	size := len(x)
+	n += WriteVarInt(data[n:], uint(size))
+	n += copy(data[n:], x)
+
+	return n
+}
+
+func WriteEnum(data []byte, x int) (n int) {
+	return WriteVarInt(data[n:], uint(x))
+}
+
+func WriteSFixed32(data []byte, x int32) (n int) {
+	return WriteFixed32(data[n:], uint32(x))
+}
+
+func WriteSFixed64(data []byte, x int64) (n int) {
+	return WriteFixed64(data[n:], uint64(x))
+}
+
+func WriteSInt32(data []byte, x int32) (n int) {
+	return WriteZigZag32(data[n:], uint32(x))
+}
+
+func WriteSInt64(data []byte, x int64) (n int) {
+	return WriteZigZag64(data[n:], uint64(x))
 }

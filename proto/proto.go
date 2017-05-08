@@ -12,6 +12,6 @@ const (
 )
 
 type MarshallerTo interface {
-	MarshalTo(data []byte) (n int)
+	MarshalTo(data []byte) (n int, err error)
 	MarshalSize() (n int)
 }
