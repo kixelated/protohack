@@ -15,3 +15,7 @@ type MarshallerTo interface {
 	MarshalTo(data []byte) (n int, err error)
 	MarshalSize() (n int)
 }
+
+type Unmarshaller interface {
+	Unmarshal(data []byte) (err error)
+}

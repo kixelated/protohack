@@ -196,7 +196,7 @@ func goFieldName(field *desc.Field) (name string) {
 	return name
 }
 
-func goFieldType(field *desc.Field) (name string) {
+func goElemType(field *desc.Field) (name string) {
 	switch field.Proto.GetType() {
 	case proto_desc.FieldDescriptorProto_TYPE_DOUBLE:
 		name = `float64`
@@ -222,7 +222,7 @@ func goFieldType(field *desc.Field) (name string) {
 		panic("groups are not supported")
 	case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
 		message := field.MessageType()
-		name = `*` + goMessageType(message)
+		name = goMessageType(message)
 	case proto_desc.FieldDescriptorProto_TYPE_BYTES:
 		name = `[]byte`
 	case proto_desc.FieldDescriptorProto_TYPE_ENUM:
@@ -237,7 +237,17 @@ func goFieldType(field *desc.Field) (name string) {
 	case proto_desc.FieldDescriptorProto_TYPE_SINT64:
 		name = `int64`
 	default:
-		panic("unknown field type")
+		panic("unknown element type")
+	}
+
+	return name
+}
+
+func goFieldType(field *desc.Field) (name string) {
+	name = goElemType(field)
+
+	if field.Proto.GetType() == proto_desc.FieldDescriptorProto_TYPE_MESSAGE {
+		name = "*" + name
 	}
 
 	if field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED {
@@ -292,8 +302,6 @@ func (g *Generator) writeMessageMarshalTo(message *desc.Message) {
 }
 
 func (g *Generator) writeMessageMarshalToField(field *desc.Field) {
-	name := `m.` + goFieldName(field)
-
 	repeated := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED)
 	required := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REQUIRED)
 	// packed := field.Proto.GetOptions().GetPacked() // TODO implement
@@ -377,6 +385,8 @@ func (g *Generator) writeMessageMarshalToField(field *desc.Field) {
 		zero = `0`
 	}
 
+	name := `m.` + goFieldName(field)
+
 	if repeated {
 		g.w.Line(`for _, x := range ` + name + ` {`).In()
 		name = `x`
@@ -386,7 +396,9 @@ func (g *Generator) writeMessageMarshalToField(field *desc.Field) {
 		name = cast + `(` + name + `)`
 	}
 
-	g.w.Line(`if ` + name + ` != ` + zero + ` {`).In()
+	if !repeated {
+		g.w.Line(`if ` + name + ` != ` + zero + ` {`).In()
+	}
 
 	// TODO Make a better interface.
 	keySize := proto.SizeKey(int(field.Proto.GetNumber()))
@@ -397,16 +409,12 @@ func (g *Generator) writeMessageMarshalToField(field *desc.Field) {
 
 	g.w.Line(`n += ` + method + `(data[n:], ` + name + `)`)
 
-	if required {
+	if !repeated && required {
 		g.w.Out().Line(`} else {`).In()
-		g.w.Line(`return 0, errors.New("missing required field: ` + goFieldName(field) + `")`)
+		g.w.Line(`return n, errors.New("missing required field: ` + goFieldName(field) + `")`)
 	}
 
 	g.w.Out().Line(`}`)
-
-	if repeated {
-		g.w.Out().Line(`}`)
-	}
 }
 
 func (g *Generator) writeMessageMarshalSize(message *desc.Message) {
@@ -427,9 +435,8 @@ func (g *Generator) writeMessageMarshalSize(message *desc.Message) {
 }
 
 func (g *Generator) writeMessageMarshalSizeField(field *desc.Field) {
-	name := `m.` + goFieldName(field)
-
 	repeated := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED)
+	required := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REQUIRED)
 	// TODO
 	// packed := field.Proto.GetOptions().GetPacked()
 
@@ -494,6 +501,8 @@ func (g *Generator) writeMessageMarshalSizeField(field *desc.Field) {
 		zero = `0`
 	}
 
+	name := `m.` + goFieldName(field)
+
 	if repeated {
 		g.w.Line(`for _, x := range ` + name + ` {`).In()
 		name = `x`
@@ -503,14 +512,18 @@ func (g *Generator) writeMessageMarshalSizeField(field *desc.Field) {
 		name = cast + `(` + name + `)`
 	}
 
-	g.w.Line(`if ` + name + ` != ` + zero + ` {`).In()
+	if !required && !repeated {
+		g.w.Line(`if ` + name + ` != ` + zero + ` {`).In()
+	}
 
 	size := proto.SizeKey(int(field.Proto.GetNumber()))
 	sizeStr := strconv.FormatInt(int64(size), 10)
 
 	g.w.Line(`n += ` + sizeStr + ` + ` + method + `(` + name + `)`)
 
-	g.w.Out().Line(`}`)
+	if !required && !repeated {
+		g.w.Out().Line(`}`)
+	}
 
 	if repeated {
 		g.w.Out().Line(`}`)
@@ -518,5 +531,116 @@ func (g *Generator) writeMessageMarshalSizeField(field *desc.Field) {
 }
 
 func (g *Generator) writeMessageUnmarshal(message *desc.Message) {
+	g.w.Line(`func (m ` + goMessageType(message) + `) Unmarshal(data []byte) (err error) {`).In()
 
+	g.w.Line(`r := proto.NewReader(data)`)
+	g.w.Line(`for r.Len() > 0 {`).In()
+
+	g.w.Line(`id, _, err := r.ReadKey()`)
+	g.w.Line(`if err != nil {`).In()
+	g.w.Line(`return err`)
+	g.w.Out().Line(`}`)
+
+	g.w.Line(`switch id {`)
+
+	for _, field := range message.Fields {
+		g.writeMessageUnmarshalField(field)
+	}
+
+	g.w.Line(`}`)
+	g.w.Out().Line(`}`)
+
+	g.w.Line(`return nil`)
+
+	g.w.Out().Line(`}`)
+}
+
+func (g *Generator) writeMessageUnmarshalField(field *desc.Field) {
+	repeated := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED)
+	message := (field.Proto.GetType() == proto_desc.FieldDescriptorProto_TYPE_MESSAGE)
+
+	numberStr := strconv.Itoa(int(field.Proto.GetNumber()))
+	g.w.Line(`case ` + numberStr + `:`).In()
+
+	var method string
+	var cast string
+
+	switch field.Proto.GetType() {
+	case proto_desc.FieldDescriptorProto_TYPE_DOUBLE:
+		method = `ReadDouble`
+	case proto_desc.FieldDescriptorProto_TYPE_FLOAT:
+		method = `ReadFloat`
+	case proto_desc.FieldDescriptorProto_TYPE_INT64:
+		method = `ReadInt64`
+	case proto_desc.FieldDescriptorProto_TYPE_UINT64:
+		method = `ReadUInt64`
+	case proto_desc.FieldDescriptorProto_TYPE_INT32:
+		method = `ReadInt32`
+	case proto_desc.FieldDescriptorProto_TYPE_UINT32:
+		method = `ReadUInt32`
+	case proto_desc.FieldDescriptorProto_TYPE_FIXED64:
+		method = `ReadFixed64`
+	case proto_desc.FieldDescriptorProto_TYPE_FIXED32:
+		method = `ReadFixed32`
+	case proto_desc.FieldDescriptorProto_TYPE_BOOL:
+		method = `ReadBool`
+	case proto_desc.FieldDescriptorProto_TYPE_STRING:
+		method = `ReadString`
+	case proto_desc.FieldDescriptorProto_TYPE_GROUP:
+		panic("groups are not supported")
+	case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
+		method = `ReadToMessage`
+	case proto_desc.FieldDescriptorProto_TYPE_BYTES:
+		method = `ReadBytes`
+	case proto_desc.FieldDescriptorProto_TYPE_ENUM:
+		method = `ReadEnum`
+		cast = goElemType(field)
+	case proto_desc.FieldDescriptorProto_TYPE_SFIXED32:
+		method = `ReadSFixed32`
+	case proto_desc.FieldDescriptorProto_TYPE_SFIXED64:
+		method = `ReadSFixed64`
+	case proto_desc.FieldDescriptorProto_TYPE_SINT32:
+		method = `ReadSInt32`
+	case proto_desc.FieldDescriptorProto_TYPE_SINT64:
+		method = `ReadSInt64`
+	}
+
+	name := `m.` + goFieldName(field)
+	tempName := name
+
+	if repeated || cast != "" {
+		tempName = `temp`
+	}
+
+	if message {
+		if tempName != name {
+			g.w.Line(tempName + ` := new(` + goElemType(field) + `)`)
+			g.w.Line(`err = r.` + method + `(` + tempName + `)`)
+		} else {
+			g.w.Line(name + ` = new(` + goElemType(field) + `)`)
+			g.w.Line(`err = r.` + method + `(` + name + `)`)
+		}
+	} else {
+		if tempName != name {
+			g.w.Line(tempName + `, err := r.` + method + `()`)
+		} else {
+			g.w.Line(name + `, err = r.` + method + `()`)
+		}
+	}
+
+	g.w.Line(`if err != nil {`).In()
+	g.w.Line(`return err`)
+	g.w.Out().Line(`}`)
+
+	if cast != "" {
+		tempName = cast + `(` + tempName + `)`
+	}
+
+	if repeated {
+		g.w.Line(name + ` = append(` + name + `, ` + tempName + `)`)
+	} else if tempName != name {
+		g.w.Line(name + ` = ` + tempName)
+	}
+
+	g.w.Out()
 }
