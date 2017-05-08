@@ -112,21 +112,20 @@ func WriteString(data []byte, x string) (n int) {
 	return WriteBytes(data, []byte(x))
 }
 
-func WriteGroup(data []byte, x MarshallerTo) (n int) {
-	size := x.MarshalSize()
-	n += WriteVarInt(data[n:], uint(size))
+func WriteStringLength(data []byte, x string) (n int) {
+	return WriteBytesLength(data, []byte(x))
+}
 
-	temp, err := x.MarshalTo(data[n:])
+func WriteMessage(data []byte, x MarshallerTo) (n int) {
+	n, err := x.MarshalTo(data[n:])
 	if err != nil {
 		panic(err.Error()) // TODO
 	}
-
-	n += temp
 
 	return n
 }
 
-func WriteMessage(data []byte, x MarshallerTo) (n int) {
+func WriteMessageLength(data []byte, x MarshallerTo) (n int) {
 	size := x.MarshalSize()
 	n += WriteVarInt(data[n:], uint(size))
 
@@ -136,7 +135,6 @@ func WriteMessage(data []byte, x MarshallerTo) (n int) {
 	}
 
 	n += temp
-
 	return n
 }
 
@@ -146,7 +144,12 @@ func WriteByte(data []byte, x byte) (n int) {
 }
 
 func WriteBytes(data []byte, x []byte) (n int) {
+	return copy(data[n:], x)
+}
+
+func WriteBytesLength(data []byte, x []byte) (n int) {
 	size := len(x)
+
 	n += WriteVarInt(data[n:], uint(size))
 	n += copy(data[n:], x)
 

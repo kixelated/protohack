@@ -91,19 +91,34 @@ func SizeString(x string) (n int) {
 	return SizeBytes([]byte(x))
 }
 
-func SizeGroup(x MarshallerTo) (n int) {
-	size := x.MarshalSize()
-	return SizeVarInt(uint(size)) + size
+func SizeStringLength(x string) (n int) {
+	return SizeBytesLength([]byte(x))
 }
 
 func SizeMessage(x MarshallerTo) (n int) {
+	return x.MarshalSize()
+}
+
+func SizeMessageLength(x MarshallerTo) (n int) {
 	size := x.MarshalSize()
-	return SizeVarInt(uint(size)) + size
+
+	n += SizeVarInt(uint(size))
+	n += size
+
+	return n
 }
 
 func SizeBytes(x []byte) (n int) {
+	return len(x)
+}
+
+func SizeBytesLength(x []byte) (n int) {
 	size := len(x)
-	return SizeVarInt(uint(size)) + size
+
+	n += SizeVarInt(uint(size))
+	n += size
+
+	return n
 }
 
 func SizeEnum(x int) (n int) {

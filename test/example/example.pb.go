@@ -27,7 +27,7 @@ func (m Person) Marshal() (data []byte, err error) {
 func (m Person) MarshalTo(data []byte) (n int, err error) {
 	if m.Name != "" {
 		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteString(data[n:], m.Name)
+		n += proto.WriteStringLength(data[n:], m.Name)
 	} else {
 		return 0, errors.New("missing required field: Name")
 	}
@@ -39,29 +39,29 @@ func (m Person) MarshalTo(data []byte) (n int, err error) {
 	}
 	if m.Email != "" {
 		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteString(data[n:], m.Email)
+		n += proto.WriteStringLength(data[n:], m.Email)
 	}
 	for _, x := range m.Phone {
 		if x != nil {
 			n += copy(data[n:], []byte{0x22})
-			n += proto.WriteMessage(data[n:], x)
+			n += proto.WriteMessageLength(data[n:], x)
 		}
 	}
 	return n, nil
 }
 func (m Person) MarshalSize() (n int) {
 	if m.Name != "" {
-		n += 1 + proto.SizeString(m.Name)
+		n += 1 + proto.SizeStringLength(m.Name)
 	}
 	if m.Id != 0 {
 		n += 1 + proto.SizeInt32(m.Id)
 	}
 	if m.Email != "" {
-		n += 1 + proto.SizeString(m.Email)
+		n += 1 + proto.SizeStringLength(m.Email)
 	}
 	for _, x := range m.Phone {
 		if x != nil {
-			n += 1 + proto.SizeMessage(x)
+			n += 1 + proto.SizeMessageLength(x)
 		}
 	}
 	return n
@@ -74,7 +74,7 @@ func (m Person_PhoneNumber) Marshal() (data []byte, err error) {
 func (m Person_PhoneNumber) MarshalTo(data []byte) (n int, err error) {
 	if m.Number != "" {
 		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteString(data[n:], m.Number)
+		n += proto.WriteStringLength(data[n:], m.Number)
 	} else {
 		return 0, errors.New("missing required field: Number")
 	}
@@ -86,7 +86,7 @@ func (m Person_PhoneNumber) MarshalTo(data []byte) (n int, err error) {
 }
 func (m Person_PhoneNumber) MarshalSize() (n int) {
 	if m.Number != "" {
-		n += 1 + proto.SizeString(m.Number)
+		n += 1 + proto.SizeStringLength(m.Number)
 	}
 	if int(m.Type) != 0 {
 		n += 1 + proto.SizeEnum(int(m.Type))

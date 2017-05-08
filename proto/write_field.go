@@ -4,114 +4,75 @@ import (
 	"math"
 )
 
-func WriteFieldDouble(data []byte, id int, x float64) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteDoubleField(data []byte, id int, x float64) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_64BIT)
 	n += WriteFixed64(data[n:], math.Float64bits(x))
 
 	return n
 }
 
-func WriteFieldFloat(data []byte, id int, x float32) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteFloatField(data []byte, id int, x float32) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_32BIT)
 	n += WriteFixed32(data[n:], math.Float32bits(x))
 
 	return n
 }
 
-func WriteFieldInt64(data []byte, id int, x int64) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteInt64Field(data []byte, id int, x int64) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_VARINT)
 	n += WriteVarInt64(data[n:], uint64(x))
 
 	return n
 }
 
-func WriteFieldUInt64(data []byte, id int, x uint64) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteUInt64Field(data []byte, id int, x uint64) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_VARINT)
 	n += WriteVarInt64(data[n:], x)
 
 	return n
 }
 
-func WriteFieldInt32(data []byte, id int, x int32) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteInt32Field(data []byte, id int, x int32) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_VARINT)
 	n += WriteVarInt32(data[n:], uint32(x))
 
 	return n
 }
 
-func WriteFieldUInt32(data []byte, id int, x uint32) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteUInt32Field(data []byte, id int, x uint32) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_VARINT)
 	n += WriteVarInt32(data[n:], x)
 
 	return n
 }
 
-func WriteFieldFixed64(data []byte, id int, x uint64) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteFixed64Field(data []byte, id int, x uint64) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_64BIT)
 	n += WriteFixed64(data[n:], x)
 
 	return n
 }
 
-func WriteFieldFixed32(data []byte, id int, x uint32) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteFixed32Field(data []byte, id int, x uint32) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_32BIT)
 	n += WriteFixed32(data[n:], x)
 
 	return n
 }
 
-func WriteFieldBool(data []byte, id int, x bool) (n int) {
-	if !x {
-		return 0
-	}
-
+func WriteBoolField(data []byte, id int, x bool) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_VARINT)
 	n += WriteFixed8(data[n:], 1)
 
 	return n
 }
 
-func WriteFieldString(data []byte, id int, x string) (n int) {
-	return WriteFieldBytes(data, id, []byte(x))
+func WriteStringField(data []byte, id int, x string) (n int) {
+	return WriteBytesField(data, id, []byte(x))
 }
 
-func WriteFieldGroup(data []byte, id int, x MarshallerTo) (n int) {
+func WriteGroupField(data []byte, id int, x MarshallerTo) (n int) {
 	size := x.MarshalSize()
-	if size == 0 {
-		return 0
-	}
 
 	n += WriteKey(data[n:], id, WIRETYPE_GROUP_START)
 	n += WriteVarInt(data[n:], uint(size))
@@ -127,11 +88,8 @@ func WriteFieldGroup(data []byte, id int, x MarshallerTo) (n int) {
 	return n
 }
 
-func WriteFieldMessage(data []byte, id int, x MarshallerTo) (n int) {
+func WriteMessageField(data []byte, id int, x MarshallerTo) (n int) {
 	size := x.MarshalSize()
-	if size == 0 {
-		return 0
-	}
 
 	n += WriteKey(data[n:], id, WIRETYPE_LENGTH)
 	n += WriteVarInt(data[n:], uint(size))
@@ -146,11 +104,7 @@ func WriteFieldMessage(data []byte, id int, x MarshallerTo) (n int) {
 	return n
 }
 
-func WriteFieldBytes(data []byte, id int, x []byte) (n int) {
-	if len(x) == 0 {
-		return 0
-	}
-
+func WriteBytesField(data []byte, id int, x []byte) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_LENGTH)
 	n += WriteVarInt(data[n:], uint(len(x)))
 	n += copy(data[n:], x)
@@ -158,55 +112,35 @@ func WriteFieldBytes(data []byte, id int, x []byte) (n int) {
 	return n
 }
 
-func WriteFieldEnum(data []byte, id int, x int) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteEnumField(data []byte, id int, x int) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_VARINT)
 	n += WriteVarInt(data[n:], uint(x))
 
 	return n
 }
 
-func WriteFieldSFixed32(data []byte, id int, x int32) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteSFixed32Field(data []byte, id int, x int32) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_32BIT)
 	n += WriteFixed32(data[n:], uint32(x))
 
 	return n
 }
 
-func WriteFieldSFixed64(data []byte, id int, x int64) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteSFixed64Field(data []byte, id int, x int64) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_64BIT)
 	n += WriteFixed64(data[n:], uint64(x))
 
 	return n
 }
 
-func WriteFieldSInt32(data []byte, id int, x int32) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteSInt32Field(data []byte, id int, x int32) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_VARINT)
 	n += WriteZigZag32(data[n:], uint32(x))
 
 	return n
 }
 
-func WriteFieldSInt64(data []byte, id int, x int64) (n int) {
-	if x == 0 {
-		return 0
-	}
-
+func WriteSInt64Field(data []byte, id int, x int64) (n int) {
 	n += WriteKey(data[n:], id, WIRETYPE_VARINT)
 	n += WriteZigZag64(data[n:], uint64(x))
 

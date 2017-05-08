@@ -219,8 +219,7 @@ func goFieldType(field *desc.Field) (name string) {
 	case proto_desc.FieldDescriptorProto_TYPE_STRING:
 		name = `string`
 	case proto_desc.FieldDescriptorProto_TYPE_GROUP:
-		message := field.MessageType()
-		name = `*` + goMessageType(message)
+		panic("groups are not supported")
 	case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
 		message := field.MessageType()
 		name = `*` + goMessageType(message)
@@ -297,7 +296,7 @@ func (g *Generator) writeMessageMarshalToField(field *desc.Field) {
 
 	repeated := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED)
 	required := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REQUIRED)
-	//packed := field.Proto.GetOptions().GetPacked()
+	// packed := field.Proto.GetOptions().GetPacked() // TODO implement
 
 	var wireType proto.WireType
 	var method string
@@ -343,19 +342,17 @@ func (g *Generator) writeMessageMarshalToField(field *desc.Field) {
 		zero = `false`
 	case proto_desc.FieldDescriptorProto_TYPE_STRING:
 		wireType = proto.WIRETYPE_LENGTH
-		method = `proto.WriteString`
+		method = `proto.WriteStringLength`
 		zero = `""`
 	case proto_desc.FieldDescriptorProto_TYPE_GROUP:
-		wireType = proto.WIRETYPE_GROUP_START
-		method = `proto.WriteGroup`
-		zero = `nil`
+		panic("groups are not supported")
 	case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
 		wireType = proto.WIRETYPE_LENGTH
-		method = `proto.WriteMessage`
+		method = `proto.WriteMessageLength`
 		zero = `nil`
 	case proto_desc.FieldDescriptorProto_TYPE_BYTES:
 		wireType = proto.WIRETYPE_LENGTH
-		method = `proto.WriteBytes`
+		method = `proto.WriteBytesLength`
 		zero = `nil`
 	case proto_desc.FieldDescriptorProto_TYPE_ENUM:
 		wireType = proto.WIRETYPE_VARINT
@@ -391,18 +388,14 @@ func (g *Generator) writeMessageMarshalToField(field *desc.Field) {
 
 	g.w.Line(`if ` + name + ` != ` + zero + ` {`).In()
 
+	// TODO Make a better interface.
 	keySize := proto.SizeKey(int(field.Proto.GetNumber()))
 	keyData := make([]byte, keySize)
-
 	proto.WriteKey(keyData, int(field.Proto.GetNumber()), wireType)
+
 	g.w.Line(`n += copy(data[n:], ` + fmt.Sprintf("%#v", keyData) + `)`)
 
 	g.w.Line(`n += ` + method + `(data[n:], ` + name + `)`)
-
-	if field.Proto.GetType() == proto_desc.FieldDescriptorProto_TYPE_GROUP {
-		proto.WriteKey(keyData, int(field.Proto.GetNumber()), proto.WIRETYPE_GROUP_END)
-		g.w.Line(`n += copy(data[n:], ` + fmt.Sprintf("%#v", keyData) + `)`)
-	}
 
 	if required {
 		g.w.Out().Line(`} else {`).In()
@@ -473,16 +466,15 @@ func (g *Generator) writeMessageMarshalSizeField(field *desc.Field) {
 		method = `proto.SizeBool`
 		zero = `false`
 	case proto_desc.FieldDescriptorProto_TYPE_STRING:
-		method = `proto.SizeString`
+		method = `proto.SizeStringLength`
 		zero = `""`
 	case proto_desc.FieldDescriptorProto_TYPE_GROUP:
-		method = `proto.SizeGroup`
-		zero = `nil`
+		panic("groups are not supported")
 	case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
-		method = `proto.SizeMessage`
+		method = `proto.SizeMessageLength`
 		zero = `nil`
 	case proto_desc.FieldDescriptorProto_TYPE_BYTES:
-		method = `proto.SizeBytes`
+		method = `proto.SizeBytesLength`
 		zero = `nil`
 	case proto_desc.FieldDescriptorProto_TYPE_ENUM:
 		method = `proto.SizeEnum`
@@ -513,10 +505,10 @@ func (g *Generator) writeMessageMarshalSizeField(field *desc.Field) {
 
 	g.w.Line(`if ` + name + ` != ` + zero + ` {`).In()
 
-	keySize := proto.SizeKey(int(field.Proto.GetNumber()))
-	keySizeStr := strconv.FormatInt(int64(keySize), 10)
+	size := proto.SizeKey(int(field.Proto.GetNumber()))
+	sizeStr := strconv.FormatInt(int64(size), 10)
 
-	g.w.Line(`n += ` + keySizeStr + ` + ` + method + `(` + name + `)`)
+	g.w.Line(`n += ` + sizeStr + ` + ` + method + `(` + name + `)`)
 
 	g.w.Out().Line(`}`)
 
