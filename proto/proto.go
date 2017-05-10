@@ -11,6 +11,8 @@ const (
 	WIRETYPE_32BIT       WireType = 5
 )
 
+type Enum int
+
 type MarshallerTo interface {
 	MarshalTo(data []byte) (n int, err error)
 	MarshalSize() (n int)

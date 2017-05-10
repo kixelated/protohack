@@ -61,29 +61,29 @@ func (m Person) MarshalSize() (n int) {
 func (m *Person) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Name, err = r.ReadString()
+			m.Name, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			m.Id, err = r.ReadInt32()
+			m.Id, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 		case 3:
-			m.Email, err = r.ReadString()
+			m.Email, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 4:
 			temp := new(Person_PhoneNumber)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -120,18 +120,18 @@ func (m Person_PhoneNumber) MarshalSize() (n int) {
 func (m *Person_PhoneNumber) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Number, err = r.ReadString()
+			m.Number, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			temp, err := r.ReadEnum()
+			temp, err := r.ReadEnum(t)
 			if err != nil {
 				return err
 			}

@@ -47,6 +47,19 @@ func TestMarshal(t *testing.T) {
 	}
 }
 
+func TestUnmarshal(t *testing.T) {
+	data, err := bindata.Asset("descriptor_test.pb")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	desc := new(descriptor.FileDescriptorProto)
+	err = desc.Unmarshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func BenchmarkMarshal(b *testing.B) {
 	data, err := bindata.Asset("descriptor_test.pb")
 	if err != nil {
@@ -113,6 +126,24 @@ func BenchmarkMarshalGoldGogo(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 		_, err := proto.Marshal(desc_gold)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkUnmarshal(b *testing.B) {
+	data, err := bindata.Asset("descriptor_test.pb")
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		var desc descriptor.FileDescriptorProto
+
+		err := desc.Unmarshal(data)
 		if err != nil {
 			b.Fatal(err)
 		}

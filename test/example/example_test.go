@@ -131,3 +131,57 @@ func BenchmarkMarshalGoldGogo(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkUnmarshal(b *testing.B) {
+	data, err := sample().Marshal()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		var person example.Person
+
+		err := person.Unmarshal(data)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkUnmarshalGold(b *testing.B) {
+	data, err := sample().Marshal()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		var person gold.Person
+
+		err := proto.Unmarshal(data, &person)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkUnmarshalGoldGogo(b *testing.B) {
+	data, err := sample().Marshal()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		var person gold_gogo.Person
+
+		err := person.Unmarshal(data)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}

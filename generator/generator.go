@@ -536,7 +536,7 @@ func (g *Generator) writeMessageUnmarshal(message *desc.Message) {
 	g.w.Line(`r := proto.NewReader(data)`)
 	g.w.Line(`for r.Len() > 0 {`).In()
 
-	g.w.Line(`id, _, err := r.ReadKey()`)
+	g.w.Line(`id, t, err := r.ReadKey()`)
 	g.w.Line(`if err != nil {`).In()
 	g.w.Line(`return err`)
 	g.w.Out().Line(`}`)
@@ -615,16 +615,16 @@ func (g *Generator) writeMessageUnmarshalField(field *desc.Field) {
 	if message {
 		if tempName != name {
 			g.w.Line(tempName + ` := new(` + goElemType(field) + `)`)
-			g.w.Line(`err = r.` + method + `(` + tempName + `)`)
+			g.w.Line(`err = r.` + method + `(t, ` + tempName + `)`)
 		} else {
 			g.w.Line(name + ` = new(` + goElemType(field) + `)`)
-			g.w.Line(`err = r.` + method + `(` + name + `)`)
+			g.w.Line(`err = r.` + method + `(t, ` + name + `)`)
 		}
 	} else {
 		if tempName != name {
-			g.w.Line(tempName + `, err := r.` + method + `()`)
+			g.w.Line(tempName + `, err := r.` + method + `(t)`)
 		} else {
-			g.w.Line(name + `, err = r.` + method + `()`)
+			g.w.Line(name + `, err = r.` + method + `(t)`)
 		}
 	}
 

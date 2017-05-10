@@ -238,14 +238,14 @@ func (m FileDescriptorSet) MarshalSize() (n int) {
 func (m *FileDescriptorSet) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
 			temp := new(FileDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -352,81 +352,81 @@ func (m FileDescriptorProto) MarshalSize() (n int) {
 func (m *FileDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Name, err = r.ReadString()
+			m.Name, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			m.Package, err = r.ReadString()
+			m.Package, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 3:
-			temp, err := r.ReadString()
+			temp, err := r.ReadString(t)
 			if err != nil {
 				return err
 			}
 			m.Dependency = append(m.Dependency, temp)
 		case 4:
 			temp := new(DescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.MessageType = append(m.MessageType, temp)
 		case 5:
 			temp := new(EnumDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.EnumType = append(m.EnumType, temp)
 		case 6:
 			temp := new(ServiceDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.Service = append(m.Service, temp)
 		case 7:
 			temp := new(FieldDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.Extension = append(m.Extension, temp)
 		case 8:
 			m.Options = new(FileOptions)
-			err = r.ReadToMessage(m.Options)
+			err = r.ReadToMessage(t, m.Options)
 			if err != nil {
 				return err
 			}
 		case 9:
 			m.SourceCodeInfo = new(SourceCodeInfo)
-			err = r.ReadToMessage(m.SourceCodeInfo)
+			err = r.ReadToMessage(t, m.SourceCodeInfo)
 			if err != nil {
 				return err
 			}
 		case 10:
-			temp, err := r.ReadInt32()
+			temp, err := r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 			m.PublicDependency = append(m.PublicDependency, temp)
 		case 11:
-			temp, err := r.ReadInt32()
+			temp, err := r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 			m.WeakDependency = append(m.WeakDependency, temp)
 		case 12:
-			m.Syntax, err = r.ReadString()
+			m.Syntax, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
@@ -518,73 +518,73 @@ func (m DescriptorProto) MarshalSize() (n int) {
 func (m *DescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Name, err = r.ReadString()
+			m.Name, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
 			temp := new(FieldDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.Field = append(m.Field, temp)
 		case 3:
 			temp := new(DescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.NestedType = append(m.NestedType, temp)
 		case 4:
 			temp := new(EnumDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.EnumType = append(m.EnumType, temp)
 		case 5:
 			temp := new(DescriptorProto_ExtensionRange)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.ExtensionRange = append(m.ExtensionRange, temp)
 		case 6:
 			temp := new(FieldDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.Extension = append(m.Extension, temp)
 		case 7:
 			m.Options = new(MessageOptions)
-			err = r.ReadToMessage(m.Options)
+			err = r.ReadToMessage(t, m.Options)
 			if err != nil {
 				return err
 			}
 		case 8:
 			temp := new(OneofDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.OneofDecl = append(m.OneofDecl, temp)
 		case 9:
 			temp := new(DescriptorProto_ReservedRange)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.ReservedRange = append(m.ReservedRange, temp)
 		case 10:
-			temp, err := r.ReadString()
+			temp, err := r.ReadString(t)
 			if err != nil {
 				return err
 			}
@@ -621,18 +621,18 @@ func (m DescriptorProto_ExtensionRange) MarshalSize() (n int) {
 func (m *DescriptorProto_ExtensionRange) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Start, err = r.ReadInt32()
+			m.Start, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			m.End, err = r.ReadInt32()
+			m.End, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
@@ -668,18 +668,18 @@ func (m DescriptorProto_ReservedRange) MarshalSize() (n int) {
 func (m *DescriptorProto_ReservedRange) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Start, err = r.ReadInt32()
+			m.Start, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			m.End, err = r.ReadInt32()
+			m.End, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
@@ -771,61 +771,61 @@ func (m FieldDescriptorProto) MarshalSize() (n int) {
 func (m *FieldDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Name, err = r.ReadString()
+			m.Name, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			m.Extendee, err = r.ReadString()
+			m.Extendee, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 3:
-			m.Number, err = r.ReadInt32()
+			m.Number, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 		case 4:
-			temp, err := r.ReadEnum()
+			temp, err := r.ReadEnum(t)
 			if err != nil {
 				return err
 			}
 			m.Label = FieldDescriptorProto_Label(temp)
 		case 5:
-			temp, err := r.ReadEnum()
+			temp, err := r.ReadEnum(t)
 			if err != nil {
 				return err
 			}
 			m.Type = FieldDescriptorProto_Type(temp)
 		case 6:
-			m.TypeName, err = r.ReadString()
+			m.TypeName, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 7:
-			m.DefaultValue, err = r.ReadString()
+			m.DefaultValue, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 8:
 			m.Options = new(FieldOptions)
-			err = r.ReadToMessage(m.Options)
+			err = r.ReadToMessage(t, m.Options)
 			if err != nil {
 				return err
 			}
 		case 9:
-			m.OneofIndex, err = r.ReadInt32()
+			m.OneofIndex, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 		case 10:
-			m.JsonName, err = r.ReadString()
+			m.JsonName, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
@@ -861,19 +861,19 @@ func (m OneofDescriptorProto) MarshalSize() (n int) {
 func (m *OneofDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Name, err = r.ReadString()
+			m.Name, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
 			m.Options = new(OneofOptions)
-			err = r.ReadToMessage(m.Options)
+			err = r.ReadToMessage(t, m.Options)
 			if err != nil {
 				return err
 			}
@@ -916,26 +916,26 @@ func (m EnumDescriptorProto) MarshalSize() (n int) {
 func (m *EnumDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Name, err = r.ReadString()
+			m.Name, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
 			temp := new(EnumValueDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.Value = append(m.Value, temp)
 		case 3:
 			m.Options = new(EnumOptions)
-			err = r.ReadToMessage(m.Options)
+			err = r.ReadToMessage(t, m.Options)
 			if err != nil {
 				return err
 			}
@@ -978,24 +978,24 @@ func (m EnumValueDescriptorProto) MarshalSize() (n int) {
 func (m *EnumValueDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Name, err = r.ReadString()
+			m.Name, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			m.Number, err = r.ReadInt32()
+			m.Number, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 		case 3:
 			m.Options = new(EnumValueOptions)
-			err = r.ReadToMessage(m.Options)
+			err = r.ReadToMessage(t, m.Options)
 			if err != nil {
 				return err
 			}
@@ -1038,26 +1038,26 @@ func (m ServiceDescriptorProto) MarshalSize() (n int) {
 func (m *ServiceDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Name, err = r.ReadString()
+			m.Name, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
 			temp := new(MethodDescriptorProto)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.Method = append(m.Method, temp)
 		case 3:
 			m.Options = new(ServiceOptions)
-			err = r.ReadToMessage(m.Options)
+			err = r.ReadToMessage(t, m.Options)
 			if err != nil {
 				return err
 			}
@@ -1121,39 +1121,39 @@ func (m MethodDescriptorProto) MarshalSize() (n int) {
 func (m *MethodDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Name, err = r.ReadString()
+			m.Name, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			m.InputType, err = r.ReadString()
+			m.InputType, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 3:
-			m.OutputType, err = r.ReadString()
+			m.OutputType, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 4:
 			m.Options = new(MethodOptions)
-			err = r.ReadToMessage(m.Options)
+			err = r.ReadToMessage(t, m.Options)
 			if err != nil {
 				return err
 			}
 		case 5:
-			m.ClientStreaming, err = r.ReadBool()
+			m.ClientStreaming, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 6:
-			m.ServerStreaming, err = r.ReadBool()
+			m.ServerStreaming, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
@@ -1287,90 +1287,90 @@ func (m FileOptions) MarshalSize() (n int) {
 func (m *FileOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.JavaPackage, err = r.ReadString()
+			m.JavaPackage, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 8:
-			m.JavaOuterClassname, err = r.ReadString()
+			m.JavaOuterClassname, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 9:
-			temp, err := r.ReadEnum()
+			temp, err := r.ReadEnum(t)
 			if err != nil {
 				return err
 			}
 			m.OptimizeFor = FileOptions_OptimizeMode(temp)
 		case 10:
-			m.JavaMultipleFiles, err = r.ReadBool()
+			m.JavaMultipleFiles, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 11:
-			m.GoPackage, err = r.ReadString()
+			m.GoPackage, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 16:
-			m.CcGenericServices, err = r.ReadBool()
+			m.CcGenericServices, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 17:
-			m.JavaGenericServices, err = r.ReadBool()
+			m.JavaGenericServices, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 18:
-			m.PyGenericServices, err = r.ReadBool()
+			m.PyGenericServices, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 20:
-			m.JavaGenerateEqualsAndHash, err = r.ReadBool()
+			m.JavaGenerateEqualsAndHash, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 23:
-			m.Deprecated, err = r.ReadBool()
+			m.Deprecated, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 27:
-			m.JavaStringCheckUtf8, err = r.ReadBool()
+			m.JavaStringCheckUtf8, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 31:
-			m.CcEnableArenas, err = r.ReadBool()
+			m.CcEnableArenas, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 36:
-			m.ObjcClassPrefix, err = r.ReadString()
+			m.ObjcClassPrefix, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 37:
-			m.CsharpNamespace, err = r.ReadString()
+			m.CsharpNamespace, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 39:
-			m.SwiftPrefix, err = r.ReadString()
+			m.SwiftPrefix, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 999:
 			temp := new(UninterpretedOption)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -1428,34 +1428,34 @@ func (m MessageOptions) MarshalSize() (n int) {
 func (m *MessageOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.MessageSetWireFormat, err = r.ReadBool()
+			m.MessageSetWireFormat, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			m.NoStandardDescriptorAccessor, err = r.ReadBool()
+			m.NoStandardDescriptorAccessor, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 3:
-			m.Deprecated, err = r.ReadBool()
+			m.Deprecated, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 7:
-			m.MapEntry, err = r.ReadBool()
+			m.MapEntry, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 999:
 			temp := new(UninterpretedOption)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -1527,46 +1527,46 @@ func (m FieldOptions) MarshalSize() (n int) {
 func (m *FieldOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			temp, err := r.ReadEnum()
+			temp, err := r.ReadEnum(t)
 			if err != nil {
 				return err
 			}
 			m.Ctype = FieldOptions_CType(temp)
 		case 2:
-			m.Packed, err = r.ReadBool()
+			m.Packed, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 3:
-			m.Deprecated, err = r.ReadBool()
+			m.Deprecated, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 5:
-			m.Lazy, err = r.ReadBool()
+			m.Lazy, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 6:
-			temp, err := r.ReadEnum()
+			temp, err := r.ReadEnum(t)
 			if err != nil {
 				return err
 			}
 			m.Jstype = FieldOptions_JSType(temp)
 		case 10:
-			m.Weak, err = r.ReadBool()
+			m.Weak, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 999:
 			temp := new(UninterpretedOption)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -1596,14 +1596,14 @@ func (m OneofOptions) MarshalSize() (n int) {
 func (m *OneofOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 999:
 			temp := new(UninterpretedOption)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -1647,24 +1647,24 @@ func (m EnumOptions) MarshalSize() (n int) {
 func (m *EnumOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 2:
-			m.AllowAlias, err = r.ReadBool()
+			m.AllowAlias, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 3:
-			m.Deprecated, err = r.ReadBool()
+			m.Deprecated, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 999:
 			temp := new(UninterpretedOption)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -1701,19 +1701,19 @@ func (m EnumValueOptions) MarshalSize() (n int) {
 func (m *EnumValueOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.Deprecated, err = r.ReadBool()
+			m.Deprecated, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 999:
 			temp := new(UninterpretedOption)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -1750,19 +1750,19 @@ func (m ServiceOptions) MarshalSize() (n int) {
 func (m *ServiceOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 33:
-			m.Deprecated, err = r.ReadBool()
+			m.Deprecated, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 999:
 			temp := new(UninterpretedOption)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -1806,25 +1806,25 @@ func (m MethodOptions) MarshalSize() (n int) {
 func (m *MethodOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 33:
-			m.Deprecated, err = r.ReadBool()
+			m.Deprecated, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
 		case 34:
-			temp, err := r.ReadEnum()
+			temp, err := r.ReadEnum(t)
 			if err != nil {
 				return err
 			}
 			m.IdempotencyLevel = MethodOptions_IdempotencyLevel(temp)
 		case 999:
 			temp := new(UninterpretedOption)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -1896,45 +1896,45 @@ func (m UninterpretedOption) MarshalSize() (n int) {
 func (m *UninterpretedOption) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 2:
 			temp := new(UninterpretedOption_NamePart)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
 			m.Name = append(m.Name, temp)
 		case 3:
-			m.IdentifierValue, err = r.ReadString()
+			m.IdentifierValue, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 4:
-			m.PositiveIntValue, err = r.ReadUInt64()
+			m.PositiveIntValue, err = r.ReadUInt64(t)
 			if err != nil {
 				return err
 			}
 		case 5:
-			m.NegativeIntValue, err = r.ReadInt64()
+			m.NegativeIntValue, err = r.ReadInt64(t)
 			if err != nil {
 				return err
 			}
 		case 6:
-			m.DoubleValue, err = r.ReadDouble()
+			m.DoubleValue, err = r.ReadDouble(t)
 			if err != nil {
 				return err
 			}
 		case 7:
-			m.StringValue, err = r.ReadBytes()
+			m.StringValue, err = r.ReadBytes(t)
 			if err != nil {
 				return err
 			}
 		case 8:
-			m.AggregateValue, err = r.ReadString()
+			m.AggregateValue, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
@@ -1970,18 +1970,18 @@ func (m UninterpretedOption_NamePart) MarshalSize() (n int) {
 func (m *UninterpretedOption_NamePart) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			m.NamePart, err = r.ReadString()
+			m.NamePart, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 2:
-			m.IsExtension, err = r.ReadBool()
+			m.IsExtension, err = r.ReadBool(t)
 			if err != nil {
 				return err
 			}
@@ -2010,14 +2010,14 @@ func (m SourceCodeInfo) MarshalSize() (n int) {
 func (m *SourceCodeInfo) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
 			temp := new(SourceCodeInfo_Location)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -2075,35 +2075,35 @@ func (m SourceCodeInfo_Location) MarshalSize() (n int) {
 func (m *SourceCodeInfo_Location) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			temp, err := r.ReadInt32()
+			temp, err := r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 			m.Path = append(m.Path, temp)
 		case 2:
-			temp, err := r.ReadInt32()
+			temp, err := r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 			m.Span = append(m.Span, temp)
 		case 3:
-			m.LeadingComments, err = r.ReadString()
+			m.LeadingComments, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 4:
-			m.TrailingComments, err = r.ReadString()
+			m.TrailingComments, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 6:
-			temp, err := r.ReadString()
+			temp, err := r.ReadString(t)
 			if err != nil {
 				return err
 			}
@@ -2133,14 +2133,14 @@ func (m GeneratedCodeInfo) MarshalSize() (n int) {
 func (m *GeneratedCodeInfo) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
 			temp := new(GeneratedCodeInfo_Annotation)
-			err = r.ReadToMessage(temp)
+			err = r.ReadToMessage(t, temp)
 			if err != nil {
 				return err
 			}
@@ -2191,29 +2191,29 @@ func (m GeneratedCodeInfo_Annotation) MarshalSize() (n int) {
 func (m *GeneratedCodeInfo_Annotation) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
-		id, _, err := r.ReadKey()
+		id, t, err := r.ReadKey()
 		if err != nil {
 			return err
 		}
 		switch id {
 		case 1:
-			temp, err := r.ReadInt32()
+			temp, err := r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 			m.Path = append(m.Path, temp)
 		case 2:
-			m.SourceFile, err = r.ReadString()
+			m.SourceFile, err = r.ReadString(t)
 			if err != nil {
 				return err
 			}
 		case 3:
-			m.Begin, err = r.ReadInt32()
+			m.Begin, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
 		case 4:
-			m.End, err = r.ReadInt32()
+			m.End, err = r.ReadInt32(t)
 			if err != nil {
 				return err
 			}
