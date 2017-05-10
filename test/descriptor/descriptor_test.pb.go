@@ -235,7 +235,7 @@ func (m FileDescriptorSet) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m FileDescriptorSet) Unmarshal(data []byte) (err error) {
+func (m *FileDescriptorSet) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -349,7 +349,7 @@ func (m FileDescriptorProto) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m FileDescriptorProto) Unmarshal(data []byte) (err error) {
+func (m *FileDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -515,7 +515,7 @@ func (m DescriptorProto) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m DescriptorProto) Unmarshal(data []byte) (err error) {
+func (m *DescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -618,7 +618,7 @@ func (m DescriptorProto_ExtensionRange) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m DescriptorProto_ExtensionRange) Unmarshal(data []byte) (err error) {
+func (m *DescriptorProto_ExtensionRange) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -665,7 +665,7 @@ func (m DescriptorProto_ReservedRange) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m DescriptorProto_ReservedRange) Unmarshal(data []byte) (err error) {
+func (m *DescriptorProto_ReservedRange) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -768,7 +768,7 @@ func (m FieldDescriptorProto) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m FieldDescriptorProto) Unmarshal(data []byte) (err error) {
+func (m *FieldDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -858,7 +858,7 @@ func (m OneofDescriptorProto) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m OneofDescriptorProto) Unmarshal(data []byte) (err error) {
+func (m *OneofDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -913,7 +913,7 @@ func (m EnumDescriptorProto) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m EnumDescriptorProto) Unmarshal(data []byte) (err error) {
+func (m *EnumDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -975,7 +975,7 @@ func (m EnumValueDescriptorProto) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m EnumValueDescriptorProto) Unmarshal(data []byte) (err error) {
+func (m *EnumValueDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1035,7 +1035,7 @@ func (m ServiceDescriptorProto) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m ServiceDescriptorProto) Unmarshal(data []byte) (err error) {
+func (m *ServiceDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1118,7 +1118,7 @@ func (m MethodDescriptorProto) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m MethodDescriptorProto) Unmarshal(data []byte) (err error) {
+func (m *MethodDescriptorProto) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1284,7 +1284,7 @@ func (m FileOptions) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m FileOptions) Unmarshal(data []byte) (err error) {
+func (m *FileOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1425,7 +1425,7 @@ func (m MessageOptions) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m MessageOptions) Unmarshal(data []byte) (err error) {
+func (m *MessageOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1524,7 +1524,7 @@ func (m FieldOptions) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m FieldOptions) Unmarshal(data []byte) (err error) {
+func (m *FieldOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1593,7 +1593,7 @@ func (m OneofOptions) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m OneofOptions) Unmarshal(data []byte) (err error) {
+func (m *OneofOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1644,7 +1644,7 @@ func (m EnumOptions) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m EnumOptions) Unmarshal(data []byte) (err error) {
+func (m *EnumOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1698,7 +1698,7 @@ func (m EnumValueOptions) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m EnumValueOptions) Unmarshal(data []byte) (err error) {
+func (m *EnumValueOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1747,7 +1747,7 @@ func (m ServiceOptions) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m ServiceOptions) Unmarshal(data []byte) (err error) {
+func (m *ServiceOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1803,7 +1803,7 @@ func (m MethodOptions) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m MethodOptions) Unmarshal(data []byte) (err error) {
+func (m *MethodOptions) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1893,7 +1893,7 @@ func (m UninterpretedOption) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m UninterpretedOption) Unmarshal(data []byte) (err error) {
+func (m *UninterpretedOption) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -1967,7 +1967,7 @@ func (m UninterpretedOption_NamePart) MarshalSize() (n int) {
 	n += 1 + proto.SizeBool(m.IsExtension)
 	return n
 }
-func (m UninterpretedOption_NamePart) Unmarshal(data []byte) (err error) {
+func (m *UninterpretedOption_NamePart) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -2007,7 +2007,7 @@ func (m SourceCodeInfo) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m SourceCodeInfo) Unmarshal(data []byte) (err error) {
+func (m *SourceCodeInfo) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -2072,7 +2072,7 @@ func (m SourceCodeInfo_Location) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m SourceCodeInfo_Location) Unmarshal(data []byte) (err error) {
+func (m *SourceCodeInfo_Location) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -2130,7 +2130,7 @@ func (m GeneratedCodeInfo) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m GeneratedCodeInfo) Unmarshal(data []byte) (err error) {
+func (m *GeneratedCodeInfo) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -2188,7 +2188,7 @@ func (m GeneratedCodeInfo_Annotation) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m GeneratedCodeInfo_Annotation) Unmarshal(data []byte) (err error) {
+func (m *GeneratedCodeInfo_Annotation) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()

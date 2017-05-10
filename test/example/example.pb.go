@@ -58,7 +58,7 @@ func (m Person) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m Person) Unmarshal(data []byte) (err error) {
+func (m *Person) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()
@@ -117,7 +117,7 @@ func (m Person_PhoneNumber) MarshalSize() (n int) {
 	}
 	return n
 }
-func (m Person_PhoneNumber) Unmarshal(data []byte) (err error) {
+func (m *Person_PhoneNumber) Unmarshal(data []byte) (err error) {
 	r := proto.NewReader(data)
 	for r.Len() > 0 {
 		id, _, err := r.ReadKey()

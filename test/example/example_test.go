@@ -2,6 +2,7 @@ package example_test
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
@@ -24,7 +25,7 @@ func sample() (person *example.Person) {
 				Type:   example.Person_WORK,
 			},
 			&example.Person_PhoneNumber{
-				Number: "(321) 654-0987",
+				Number: "(726) 154-0983",
 				Type:   example.Person_HOME,
 			},
 		},
@@ -40,18 +41,43 @@ func TestExample(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	expected, err := proto.Marshal(gold_person)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	data, err := person.Marshal()
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
-	gold_data, err := proto.Marshal(gold_person)
+	if !bytes.Equal(data, expected) {
+		t.Error("wrong output")
+	}
+}
+
+func TestUnmarshal(t *testing.T) {
+	person := sample()
+
+	gold_person := new(gold.Person)
+	err := testutil.ConvertProto(gold_person, person)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !bytes.Equal(data, gold_data) {
-		t.Error("wrong output")
+	data, err := proto.Marshal(gold_person)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	person2 := new(example.Person)
+	err = person2.Unmarshal(data)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !reflect.DeepEqual(person, person2) {
+		t.Error("wrong value")
 	}
 }
 

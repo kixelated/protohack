@@ -531,7 +531,7 @@ func (g *Generator) writeMessageMarshalSizeField(field *desc.Field) {
 }
 
 func (g *Generator) writeMessageUnmarshal(message *desc.Message) {
-	g.w.Line(`func (m ` + goMessageType(message) + `) Unmarshal(data []byte) (err error) {`).In()
+	g.w.Line(`func (m *` + goMessageType(message) + `) Unmarshal(data []byte) (err error) {`).In()
 
 	g.w.Line(`r := proto.NewReader(data)`)
 	g.w.Line(`for r.Len() > 0 {`).In()
