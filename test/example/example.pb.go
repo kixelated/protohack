@@ -68,26 +68,19 @@ func (m *Person) Unmarshal(data []byte) (err error) {
 		switch id {
 		case 1:
 			m.Name, err = r.ReadString(t)
-			if err != nil {
-				return err
-			}
 		case 2:
 			m.Id, err = r.ReadInt32(t)
-			if err != nil {
-				return err
-			}
 		case 3:
 			m.Email, err = r.ReadString(t)
-			if err != nil {
-				return err
-			}
 		case 4:
-			temp := new(Person_PhoneNumber)
-			err = r.ReadToMessage(t, temp)
-			if err != nil {
-				return err
+			x := new(Person_PhoneNumber)
+			err = r.ReadMessage(t, x)
+			if err == nil {
+				m.Phone = append(m.Phone, x)
 			}
-			m.Phone = append(m.Phone, temp)
+		}
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -127,15 +120,11 @@ func (m *Person_PhoneNumber) Unmarshal(data []byte) (err error) {
 		switch id {
 		case 1:
 			m.Number, err = r.ReadString(t)
-			if err != nil {
-				return err
-			}
 		case 2:
-			temp, err := r.ReadEnum(t)
-			if err != nil {
-				return err
-			}
-			m.Type = Person_PhoneType(temp)
+			err = r.ReadEnum(t, (*proto.Enum)(&m.Type))
+		}
+		if err != nil {
+			return err
 		}
 	}
 	return nil

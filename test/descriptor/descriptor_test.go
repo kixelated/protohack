@@ -1,9 +1,6 @@
 package descriptor_test
 
 import (
-	"bytes"
-	//"encoding/hex"
-	//"fmt"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
@@ -34,16 +31,9 @@ func TestMarshal(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	data, err := desc.Marshal()
+	_, err = desc.Marshal()
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	if !bytes.Equal(data, data_gold) {
-		//t.Errorf("wrong output")
-
-		//fmt.Printf("output: %s\n", hex.EncodeToString(data))
-		//fmt.Printf("expected: %s\n", hex.EncodeToString(data_gold))
 	}
 }
 
@@ -88,7 +78,7 @@ func BenchmarkMarshal(b *testing.B) {
 	}
 }
 
-func BenchmarkMarshalGoldGolang(b *testing.B) {
+func BenchmarkMarshalGold(b *testing.B) {
 	data, err := bindata.Asset("descriptor_test.pb")
 	if err != nil {
 		b.Fatal(err)
@@ -142,6 +132,42 @@ func BenchmarkUnmarshal(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 		var desc descriptor.FileDescriptorProto
+
+		err := desc.Unmarshal(data)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkUnmarshalGold(b *testing.B) {
+	data, err := bindata.Asset("descriptor_test.pb")
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		var desc gold.FileDescriptorProto
+
+		err := proto.Unmarshal(data, &desc)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkUnmarshalGogo(b *testing.B) {
+	data, err := bindata.Asset("descriptor_test.pb")
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		var desc gold_gogo.FileDescriptorProto
 
 		err := desc.Unmarshal(data)
 		if err != nil {

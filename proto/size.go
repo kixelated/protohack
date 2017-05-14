@@ -51,11 +51,11 @@ func SizeZigZag64(x uint64) (n int) {
 	return SizeVarInt64((x << 1) ^ (x >> 63))
 }
 
-func SizeDouble(x float64) (n int) {
+func SizeFloat64(x float64) (n int) {
 	return 8
 }
 
-func SizeFloat(x float32) (n int) {
+func SizeFloat32(x float32) (n int) {
 	return 4
 }
 

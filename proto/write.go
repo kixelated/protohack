@@ -80,11 +80,11 @@ func WriteKey(data []byte, id int, t WireType) (n int) {
 	return WriteVarInt64(data, uint64(id<<3)|uint64(t))
 }
 
-func WriteDouble(data []byte, x float64) (n int) {
+func WriteFloat64(data []byte, x float64) (n int) {
 	return WriteFixed64(data[n:], math.Float64bits(x))
 }
 
-func WriteFloat(data []byte, x float32) (n int) {
+func WriteFloat32(data []byte, x float32) (n int) {
 	return WriteFixed32(data[n:], math.Float32bits(x))
 }
 

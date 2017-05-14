@@ -314,11 +314,11 @@ func (g *Generator) writeMessageMarshalToField(field *desc.Field) {
 	switch field.Proto.GetType() {
 	case proto_desc.FieldDescriptorProto_TYPE_DOUBLE:
 		wireType = proto.WIRETYPE_64BIT
-		method = `proto.WriteDouble`
+		method = `proto.WriteFloat64`
 		zero = `0`
 	case proto_desc.FieldDescriptorProto_TYPE_FLOAT:
 		wireType = proto.WIRETYPE_32BIT
-		method = `proto.WriteFloat`
+		method = `proto.WriteFloat32`
 		zero = `0`
 	case proto_desc.FieldDescriptorProto_TYPE_INT64:
 		wireType = proto.WIRETYPE_VARINT
@@ -446,10 +446,10 @@ func (g *Generator) writeMessageMarshalSizeField(field *desc.Field) {
 
 	switch field.Proto.GetType() {
 	case proto_desc.FieldDescriptorProto_TYPE_DOUBLE:
-		method = `proto.SizeDouble`
+		method = `proto.SizeFloat64`
 		zero = `0`
 	case proto_desc.FieldDescriptorProto_TYPE_FLOAT:
-		method = `proto.SizeFloat`
+		method = `proto.SizeFloat32`
 		zero = `0`
 	case proto_desc.FieldDescriptorProto_TYPE_INT64:
 		method = `proto.SizeInt64`
@@ -548,6 +548,11 @@ func (g *Generator) writeMessageUnmarshal(message *desc.Message) {
 	}
 
 	g.w.Line(`}`)
+
+	g.w.Line(`if err != nil {`).In()
+	g.w.Line(`return err`)
+	g.w.Out().Line(`}`)
+
 	g.w.Out().Line(`}`)
 
 	g.w.Line(`return nil`)
@@ -558,18 +563,18 @@ func (g *Generator) writeMessageUnmarshal(message *desc.Message) {
 func (g *Generator) writeMessageUnmarshalField(field *desc.Field) {
 	repeated := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED)
 	message := (field.Proto.GetType() == proto_desc.FieldDescriptorProto_TYPE_MESSAGE)
+	enum := (field.Proto.GetType() == proto_desc.FieldDescriptorProto_TYPE_ENUM)
 
 	numberStr := strconv.Itoa(int(field.Proto.GetNumber()))
 	g.w.Line(`case ` + numberStr + `:`).In()
 
 	var method string
-	var cast string
 
 	switch field.Proto.GetType() {
 	case proto_desc.FieldDescriptorProto_TYPE_DOUBLE:
-		method = `ReadDouble`
+		method = `ReadFloat64`
 	case proto_desc.FieldDescriptorProto_TYPE_FLOAT:
-		method = `ReadFloat`
+		method = `ReadFloat32`
 	case proto_desc.FieldDescriptorProto_TYPE_INT64:
 		method = `ReadInt64`
 	case proto_desc.FieldDescriptorProto_TYPE_UINT64:
@@ -588,13 +593,10 @@ func (g *Generator) writeMessageUnmarshalField(field *desc.Field) {
 		method = `ReadString`
 	case proto_desc.FieldDescriptorProto_TYPE_GROUP:
 		panic("groups are not supported")
-	case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
-		method = `ReadToMessage`
 	case proto_desc.FieldDescriptorProto_TYPE_BYTES:
 		method = `ReadBytes`
 	case proto_desc.FieldDescriptorProto_TYPE_ENUM:
-		method = `ReadEnum`
-		cast = goElemType(field)
+		method = `ReadInt`
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED32:
 		method = `ReadSFixed32`
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED64:
@@ -606,40 +608,38 @@ func (g *Generator) writeMessageUnmarshalField(field *desc.Field) {
 	}
 
 	name := `m.` + goFieldName(field)
-	tempName := name
-
-	if repeated || cast != "" {
-		tempName = `temp`
-	}
 
 	if message {
-		if tempName != name {
-			g.w.Line(tempName + ` := new(` + goElemType(field) + `)`)
-			g.w.Line(`err = r.` + method + `(t, ` + tempName + `)`)
+		if repeated {
+			g.w.Line(`x := new(` + goElemType(field) + `)`)
+			g.w.Line(`err = r.ReadMessage(t, x)`)
+			g.w.Line(`if err == nil {`).In()
+			g.w.Line(name + ` = append(` + name + `, x)`)
+			g.w.Out().Line(`}`)
+			// We check err later.
 		} else {
 			g.w.Line(name + ` = new(` + goElemType(field) + `)`)
-			g.w.Line(`err = r.` + method + `(t, ` + name + `)`)
+			g.w.Line(`err = r.ReadMessage(t, ` + name + `)`)
+		}
+	} else if enum {
+		if repeated {
+			g.w.Line(`x, err := r.ReadIntRepeated(t, nil)`)
+			g.w.Line(`if err != nil {`).In()
+			g.w.Line(`return err`)
+			g.w.Out().Line(`}`)
+
+			g.w.Line(`for _, y := range x {`).In()
+			g.w.Line(name + ` = append(` + name + `, ` + goElemType(field) + `(y))`)
+			g.w.Out().Line(`}`)
+		} else {
+			g.w.Line(`err = r.ReadEnum(t, (*proto.Enum)(&` + name + `))`)
 		}
 	} else {
-		if tempName != name {
-			g.w.Line(tempName + `, err := r.` + method + `(t)`)
+		if repeated {
+			g.w.Line(name + `, err = r.` + method + `Repeated(t, ` + name + `)`)
 		} else {
 			g.w.Line(name + `, err = r.` + method + `(t)`)
 		}
-	}
-
-	g.w.Line(`if err != nil {`).In()
-	g.w.Line(`return err`)
-	g.w.Out().Line(`}`)
-
-	if cast != "" {
-		tempName = cast + `(` + tempName + `)`
-	}
-
-	if repeated {
-		g.w.Line(name + ` = append(` + name + `, ` + tempName + `)`)
-	} else if tempName != name {
-		g.w.Line(name + ` = ` + tempName)
 	}
 
 	g.w.Out()
