@@ -218,20 +218,30 @@ type GeneratedCodeInfo_Annotation struct {
 	End int32
 }
 func (m FileDescriptorSet) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m FileDescriptorSet) MarshalTo(data []byte) (n int, err error) {
-	for _, x := range m.File {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteMessageLength(data[n:], x)
+func (m FileDescriptorSet) MarshalTo(w *proto.Writer) (err error) {
+	for _, x := range m.File{
+		w.MessageField([]byte{0xa}, x)
 	}
-	return n, nil
+	return nil
 }
-func (m FileDescriptorSet) MarshalSize() (n int) {
+func (m FileDescriptorSet) MarshalSize(s *proto.Sizer) {
+	for _, x := range m.File{
+		s.MessageField(1, x)
+	}
+}
+func (m FileDescriptorSet) MarshalStackSize() (n int) {
 	for _, x := range m.File {
-		n += 1 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -257,98 +267,83 @@ func (m *FileDescriptorSet) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m FileDescriptorProto) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m FileDescriptorProto) MarshalTo(data []byte) (n int, err error) {
-	if m.Name != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Name)
+func (m FileDescriptorProto) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Name)
+	w.StringField([]byte{0x12}, m.Package)
+	w.StringRepeated([]byte{0x1a}, m.Dependency)
+	for _, x := range m.MessageType{
+		w.MessageField([]byte{0x22}, x)
 	}
-	if m.Package != "" {
-		n += copy(data[n:], []byte{0x12})
-		n += proto.WriteStringLength(data[n:], m.Package)
+	for _, x := range m.EnumType{
+		w.MessageField([]byte{0x2a}, x)
 	}
-	for _, x := range m.Dependency {
-		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteStringLength(data[n:], x)
+	for _, x := range m.Service{
+		w.MessageField([]byte{0x32}, x)
 	}
-	for _, x := range m.MessageType {
-		n += copy(data[n:], []byte{0x22})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	for _, x := range m.EnumType {
-		n += copy(data[n:], []byte{0x2a})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	for _, x := range m.Service {
-		n += copy(data[n:], []byte{0x32})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	for _, x := range m.Extension {
-		n += copy(data[n:], []byte{0x3a})
-		n += proto.WriteMessageLength(data[n:], x)
+	for _, x := range m.Extension{
+		w.MessageField([]byte{0x3a}, x)
 	}
 	if m.Options != nil {
-		n += copy(data[n:], []byte{0x42})
-		n += proto.WriteMessageLength(data[n:], m.Options)
+		w.MessageField([]byte{0x42}, m.Options)
 	}
 	if m.SourceCodeInfo != nil {
-		n += copy(data[n:], []byte{0x4a})
-		n += proto.WriteMessageLength(data[n:], m.SourceCodeInfo)
+		w.MessageField([]byte{0x4a}, m.SourceCodeInfo)
 	}
-	for _, x := range m.PublicDependency {
-		n += copy(data[n:], []byte{0x50})
-		n += proto.WriteInt32(data[n:], x)
-	}
-	for _, x := range m.WeakDependency {
-		n += copy(data[n:], []byte{0x58})
-		n += proto.WriteInt32(data[n:], x)
-	}
-	if m.Syntax != "" {
-		n += copy(data[n:], []byte{0x62})
-		n += proto.WriteStringLength(data[n:], m.Syntax)
-	}
-	return n, nil
+	w.Int32Repeated([]byte{0x50}, m.PublicDependency)
+	w.Int32Repeated([]byte{0x58}, m.WeakDependency)
+	w.StringField([]byte{0x62}, m.Syntax)
+	return nil
 }
-func (m FileDescriptorProto) MarshalSize() (n int) {
-	if m.Name != "" {
-		n += 1 + proto.SizeStringLength(m.Name)
+func (m FileDescriptorProto) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Name)
+	s.StringField(1, m.Package)
+	s.StringRepeated(1, m.Dependency)
+	for _, x := range m.MessageType{
+		s.MessageField(1, x)
 	}
-	if m.Package != "" {
-		n += 1 + proto.SizeStringLength(m.Package)
+	for _, x := range m.EnumType{
+		s.MessageField(1, x)
 	}
-	for _, x := range m.Dependency {
-		n += 1 + proto.SizeStringLength(x)
+	for _, x := range m.Service{
+		s.MessageField(1, x)
 	}
-	for _, x := range m.MessageType {
-		n += 1 + proto.SizeMessageLength(x)
-	}
-	for _, x := range m.EnumType {
-		n += 1 + proto.SizeMessageLength(x)
-	}
-	for _, x := range m.Service {
-		n += 1 + proto.SizeMessageLength(x)
-	}
-	for _, x := range m.Extension {
-		n += 1 + proto.SizeMessageLength(x)
+	for _, x := range m.Extension{
+		s.MessageField(1, x)
 	}
 	if m.Options != nil {
-		n += 1 + proto.SizeMessageLength(m.Options)
+		s.MessageField(1, m.Options)
 	}
 	if m.SourceCodeInfo != nil {
-		n += 1 + proto.SizeMessageLength(m.SourceCodeInfo)
+		s.MessageField(1, m.SourceCodeInfo)
 	}
-	for _, x := range m.PublicDependency {
-		n += 1 + proto.SizeInt32(x)
+	s.Int32Repeated(1, m.PublicDependency)
+	s.Int32Repeated(1, m.WeakDependency)
+	s.StringField(1, m.Syntax)
+}
+func (m FileDescriptorProto) MarshalStackSize() (n int) {
+	for _, x := range m.MessageType {
+		n += 1 + x.MarshalStackSize()
 	}
-	for _, x := range m.WeakDependency {
-		n += 1 + proto.SizeInt32(x)
+	for _, x := range m.EnumType {
+		n += 1 + x.MarshalStackSize()
 	}
-	if m.Syntax != "" {
-		n += 1 + proto.SizeStringLength(m.Syntax)
+	for _, x := range m.Service {
+		n += 1 + x.MarshalStackSize()
 	}
+	for _, x := range m.Extension {
+		n += 1 + x.MarshalStackSize()
+	}
+	n += 2
 	return n
 }
 func (m *FileDescriptorProto) Unmarshal(data []byte) (err error) {
@@ -409,84 +404,96 @@ func (m *FileDescriptorProto) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m DescriptorProto) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m DescriptorProto) MarshalTo(data []byte) (n int, err error) {
-	if m.Name != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Name)
+func (m DescriptorProto) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Name)
+	for _, x := range m.Field{
+		w.MessageField([]byte{0x12}, x)
 	}
-	for _, x := range m.Field {
-		n += copy(data[n:], []byte{0x12})
-		n += proto.WriteMessageLength(data[n:], x)
+	for _, x := range m.NestedType{
+		w.MessageField([]byte{0x1a}, x)
 	}
-	for _, x := range m.NestedType {
-		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteMessageLength(data[n:], x)
+	for _, x := range m.EnumType{
+		w.MessageField([]byte{0x22}, x)
 	}
-	for _, x := range m.EnumType {
-		n += copy(data[n:], []byte{0x22})
-		n += proto.WriteMessageLength(data[n:], x)
+	for _, x := range m.ExtensionRange{
+		w.MessageField([]byte{0x2a}, x)
 	}
-	for _, x := range m.ExtensionRange {
-		n += copy(data[n:], []byte{0x2a})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	for _, x := range m.Extension {
-		n += copy(data[n:], []byte{0x32})
-		n += proto.WriteMessageLength(data[n:], x)
+	for _, x := range m.Extension{
+		w.MessageField([]byte{0x32}, x)
 	}
 	if m.Options != nil {
-		n += copy(data[n:], []byte{0x3a})
-		n += proto.WriteMessageLength(data[n:], m.Options)
+		w.MessageField([]byte{0x3a}, m.Options)
 	}
-	for _, x := range m.OneofDecl {
-		n += copy(data[n:], []byte{0x42})
-		n += proto.WriteMessageLength(data[n:], x)
+	for _, x := range m.OneofDecl{
+		w.MessageField([]byte{0x42}, x)
 	}
-	for _, x := range m.ReservedRange {
-		n += copy(data[n:], []byte{0x4a})
-		n += proto.WriteMessageLength(data[n:], x)
+	for _, x := range m.ReservedRange{
+		w.MessageField([]byte{0x4a}, x)
 	}
-	for _, x := range m.ReservedName {
-		n += copy(data[n:], []byte{0x52})
-		n += proto.WriteStringLength(data[n:], x)
-	}
-	return n, nil
+	w.StringRepeated([]byte{0x52}, m.ReservedName)
+	return nil
 }
-func (m DescriptorProto) MarshalSize() (n int) {
-	if m.Name != "" {
-		n += 1 + proto.SizeStringLength(m.Name)
+func (m DescriptorProto) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Name)
+	for _, x := range m.Field{
+		s.MessageField(1, x)
 	}
-	for _, x := range m.Field {
-		n += 1 + proto.SizeMessageLength(x)
+	for _, x := range m.NestedType{
+		s.MessageField(1, x)
 	}
-	for _, x := range m.NestedType {
-		n += 1 + proto.SizeMessageLength(x)
+	for _, x := range m.EnumType{
+		s.MessageField(1, x)
 	}
-	for _, x := range m.EnumType {
-		n += 1 + proto.SizeMessageLength(x)
+	for _, x := range m.ExtensionRange{
+		s.MessageField(1, x)
 	}
-	for _, x := range m.ExtensionRange {
-		n += 1 + proto.SizeMessageLength(x)
-	}
-	for _, x := range m.Extension {
-		n += 1 + proto.SizeMessageLength(x)
+	for _, x := range m.Extension{
+		s.MessageField(1, x)
 	}
 	if m.Options != nil {
-		n += 1 + proto.SizeMessageLength(m.Options)
+		s.MessageField(1, m.Options)
+	}
+	for _, x := range m.OneofDecl{
+		s.MessageField(1, x)
+	}
+	for _, x := range m.ReservedRange{
+		s.MessageField(1, x)
+	}
+	s.StringRepeated(1, m.ReservedName)
+}
+func (m DescriptorProto) MarshalStackSize() (n int) {
+	for _, x := range m.Field {
+		n += 1 + x.MarshalStackSize()
+	}
+	for _, x := range m.NestedType {
+		n += 1 + x.MarshalStackSize()
+	}
+	for _, x := range m.EnumType {
+		n += 1 + x.MarshalStackSize()
+	}
+	for _, x := range m.ExtensionRange {
+		n += 1 + x.MarshalStackSize()
+	}
+	for _, x := range m.Extension {
+		n += 1 + x.MarshalStackSize()
 	}
 	for _, x := range m.OneofDecl {
-		n += 1 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	for _, x := range m.ReservedRange {
-		n += 1 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
-	for _, x := range m.ReservedName {
-		n += 1 + proto.SizeStringLength(x)
-	}
+	n += 1
 	return n
 }
 func (m *DescriptorProto) Unmarshal(data []byte) (err error) {
@@ -554,28 +561,26 @@ func (m *DescriptorProto) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m DescriptorProto_ExtensionRange) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m DescriptorProto_ExtensionRange) MarshalTo(data []byte) (n int, err error) {
-	if m.Start != 0 {
-		n += copy(data[n:], []byte{0x8})
-		n += proto.WriteInt32(data[n:], m.Start)
-	}
-	if m.End != 0 {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteInt32(data[n:], m.End)
-	}
-	return n, nil
+func (m DescriptorProto_ExtensionRange) MarshalTo(w *proto.Writer) (err error) {
+	w.Int32Field([]byte{0x8}, m.Start)
+	w.Int32Field([]byte{0x10}, m.End)
+	return nil
 }
-func (m DescriptorProto_ExtensionRange) MarshalSize() (n int) {
-	if m.Start != 0 {
-		n += 1 + proto.SizeInt32(m.Start)
-	}
-	if m.End != 0 {
-		n += 1 + proto.SizeInt32(m.End)
-	}
+func (m DescriptorProto_ExtensionRange) MarshalSize(s *proto.Sizer) {
+	s.Int32Field(1, m.Start)
+	s.Int32Field(1, m.End)
+}
+func (m DescriptorProto_ExtensionRange) MarshalStackSize() (n int) {
 	return n
 }
 func (m *DescriptorProto_ExtensionRange) Unmarshal(data []byte) (err error) {
@@ -598,28 +603,26 @@ func (m *DescriptorProto_ExtensionRange) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m DescriptorProto_ReservedRange) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m DescriptorProto_ReservedRange) MarshalTo(data []byte) (n int, err error) {
-	if m.Start != 0 {
-		n += copy(data[n:], []byte{0x8})
-		n += proto.WriteInt32(data[n:], m.Start)
-	}
-	if m.End != 0 {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteInt32(data[n:], m.End)
-	}
-	return n, nil
+func (m DescriptorProto_ReservedRange) MarshalTo(w *proto.Writer) (err error) {
+	w.Int32Field([]byte{0x8}, m.Start)
+	w.Int32Field([]byte{0x10}, m.End)
+	return nil
 }
-func (m DescriptorProto_ReservedRange) MarshalSize() (n int) {
-	if m.Start != 0 {
-		n += 1 + proto.SizeInt32(m.Start)
-	}
-	if m.End != 0 {
-		n += 1 + proto.SizeInt32(m.End)
-	}
+func (m DescriptorProto_ReservedRange) MarshalSize(s *proto.Sizer) {
+	s.Int32Field(1, m.Start)
+	s.Int32Field(1, m.End)
+}
+func (m DescriptorProto_ReservedRange) MarshalStackSize() (n int) {
 	return n
 }
 func (m *DescriptorProto_ReservedRange) Unmarshal(data []byte) (err error) {
@@ -642,84 +645,47 @@ func (m *DescriptorProto_ReservedRange) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m FieldDescriptorProto) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m FieldDescriptorProto) MarshalTo(data []byte) (n int, err error) {
-	if m.Name != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Name)
-	}
-	if m.Extendee != "" {
-		n += copy(data[n:], []byte{0x12})
-		n += proto.WriteStringLength(data[n:], m.Extendee)
-	}
-	if m.Number != 0 {
-		n += copy(data[n:], []byte{0x18})
-		n += proto.WriteInt32(data[n:], m.Number)
-	}
-	if int(m.Label) != 0 {
-		n += copy(data[n:], []byte{0x20})
-		n += proto.WriteEnum(data[n:], int(m.Label))
-	}
-	if int(m.Type) != 0 {
-		n += copy(data[n:], []byte{0x28})
-		n += proto.WriteEnum(data[n:], int(m.Type))
-	}
-	if m.TypeName != "" {
-		n += copy(data[n:], []byte{0x32})
-		n += proto.WriteStringLength(data[n:], m.TypeName)
-	}
-	if m.DefaultValue != "" {
-		n += copy(data[n:], []byte{0x3a})
-		n += proto.WriteStringLength(data[n:], m.DefaultValue)
-	}
+func (m FieldDescriptorProto) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Name)
+	w.StringField([]byte{0x12}, m.Extendee)
+	w.Int32Field([]byte{0x18}, m.Number)
+	w.IntField([]byte{0x20}, int(m.Label))
+	w.IntField([]byte{0x28}, int(m.Type))
+	w.StringField([]byte{0x32}, m.TypeName)
+	w.StringField([]byte{0x3a}, m.DefaultValue)
 	if m.Options != nil {
-		n += copy(data[n:], []byte{0x42})
-		n += proto.WriteMessageLength(data[n:], m.Options)
+		w.MessageField([]byte{0x42}, m.Options)
 	}
-	if m.OneofIndex != 0 {
-		n += copy(data[n:], []byte{0x48})
-		n += proto.WriteInt32(data[n:], m.OneofIndex)
-	}
-	if m.JsonName != "" {
-		n += copy(data[n:], []byte{0x52})
-		n += proto.WriteStringLength(data[n:], m.JsonName)
-	}
-	return n, nil
+	w.Int32Field([]byte{0x48}, m.OneofIndex)
+	w.StringField([]byte{0x52}, m.JsonName)
+	return nil
 }
-func (m FieldDescriptorProto) MarshalSize() (n int) {
-	if m.Name != "" {
-		n += 1 + proto.SizeStringLength(m.Name)
-	}
-	if m.Extendee != "" {
-		n += 1 + proto.SizeStringLength(m.Extendee)
-	}
-	if m.Number != 0 {
-		n += 1 + proto.SizeInt32(m.Number)
-	}
-	if int(m.Label) != 0 {
-		n += 1 + proto.SizeEnum(int(m.Label))
-	}
-	if int(m.Type) != 0 {
-		n += 1 + proto.SizeEnum(int(m.Type))
-	}
-	if m.TypeName != "" {
-		n += 1 + proto.SizeStringLength(m.TypeName)
-	}
-	if m.DefaultValue != "" {
-		n += 1 + proto.SizeStringLength(m.DefaultValue)
-	}
+func (m FieldDescriptorProto) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Name)
+	s.StringField(1, m.Extendee)
+	s.Int32Field(1, m.Number)
+	s.IntField(1, int(m.Label))
+	s.IntField(1, int(m.Type))
+	s.StringField(1, m.TypeName)
+	s.StringField(1, m.DefaultValue)
 	if m.Options != nil {
-		n += 1 + proto.SizeMessageLength(m.Options)
+		s.MessageField(1, m.Options)
 	}
-	if m.OneofIndex != 0 {
-		n += 1 + proto.SizeInt32(m.OneofIndex)
-	}
-	if m.JsonName != "" {
-		n += 1 + proto.SizeStringLength(m.JsonName)
-	}
+	s.Int32Field(1, m.OneofIndex)
+	s.StringField(1, m.JsonName)
+}
+func (m FieldDescriptorProto) MarshalStackSize() (n int) {
+	n += 1
 	return n
 }
 func (m *FieldDescriptorProto) Unmarshal(data []byte) (err error) {
@@ -737,9 +703,17 @@ func (m *FieldDescriptorProto) Unmarshal(data []byte) (err error) {
 		case 3:
 			m.Number, err = r.ReadInt32(t)
 		case 4:
-			err = r.ReadEnum(t, (*proto.Enum)(&m.Label))
+			x, err := r.ReadInt(t)
+			if err != nil {
+				return err
+			}
+			m.Label = FieldDescriptorProto_Label(x)
 		case 5:
-			err = r.ReadEnum(t, (*proto.Enum)(&m.Type))
+			x, err := r.ReadInt(t)
+			if err != nil {
+				return err
+			}
+			m.Type = FieldDescriptorProto_Type(x)
 		case 6:
 			m.TypeName, err = r.ReadString(t)
 		case 7:
@@ -759,28 +733,31 @@ func (m *FieldDescriptorProto) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m OneofDescriptorProto) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m OneofDescriptorProto) MarshalTo(data []byte) (n int, err error) {
-	if m.Name != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Name)
-	}
+func (m OneofDescriptorProto) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Name)
 	if m.Options != nil {
-		n += copy(data[n:], []byte{0x12})
-		n += proto.WriteMessageLength(data[n:], m.Options)
+		w.MessageField([]byte{0x12}, m.Options)
 	}
-	return n, nil
+	return nil
 }
-func (m OneofDescriptorProto) MarshalSize() (n int) {
-	if m.Name != "" {
-		n += 1 + proto.SizeStringLength(m.Name)
-	}
+func (m OneofDescriptorProto) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Name)
 	if m.Options != nil {
-		n += 1 + proto.SizeMessageLength(m.Options)
+		s.MessageField(1, m.Options)
 	}
+}
+func (m OneofDescriptorProto) MarshalStackSize() (n int) {
+	n += 1
 	return n
 }
 func (m *OneofDescriptorProto) Unmarshal(data []byte) (err error) {
@@ -804,35 +781,40 @@ func (m *OneofDescriptorProto) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m EnumDescriptorProto) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m EnumDescriptorProto) MarshalTo(data []byte) (n int, err error) {
-	if m.Name != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Name)
-	}
-	for _, x := range m.Value {
-		n += copy(data[n:], []byte{0x12})
-		n += proto.WriteMessageLength(data[n:], x)
+func (m EnumDescriptorProto) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Name)
+	for _, x := range m.Value{
+		w.MessageField([]byte{0x12}, x)
 	}
 	if m.Options != nil {
-		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteMessageLength(data[n:], m.Options)
+		w.MessageField([]byte{0x1a}, m.Options)
 	}
-	return n, nil
+	return nil
 }
-func (m EnumDescriptorProto) MarshalSize() (n int) {
-	if m.Name != "" {
-		n += 1 + proto.SizeStringLength(m.Name)
-	}
-	for _, x := range m.Value {
-		n += 1 + proto.SizeMessageLength(x)
+func (m EnumDescriptorProto) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Name)
+	for _, x := range m.Value{
+		s.MessageField(1, x)
 	}
 	if m.Options != nil {
-		n += 1 + proto.SizeMessageLength(m.Options)
+		s.MessageField(1, m.Options)
 	}
+}
+func (m EnumDescriptorProto) MarshalStackSize() (n int) {
+	for _, x := range m.Value {
+		n += 1 + x.MarshalStackSize()
+	}
+	n += 1
 	return n
 }
 func (m *EnumDescriptorProto) Unmarshal(data []byte) (err error) {
@@ -862,35 +844,33 @@ func (m *EnumDescriptorProto) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m EnumValueDescriptorProto) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m EnumValueDescriptorProto) MarshalTo(data []byte) (n int, err error) {
-	if m.Name != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Name)
-	}
-	if m.Number != 0 {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteInt32(data[n:], m.Number)
-	}
+func (m EnumValueDescriptorProto) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Name)
+	w.Int32Field([]byte{0x10}, m.Number)
 	if m.Options != nil {
-		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteMessageLength(data[n:], m.Options)
+		w.MessageField([]byte{0x1a}, m.Options)
 	}
-	return n, nil
+	return nil
 }
-func (m EnumValueDescriptorProto) MarshalSize() (n int) {
-	if m.Name != "" {
-		n += 1 + proto.SizeStringLength(m.Name)
-	}
-	if m.Number != 0 {
-		n += 1 + proto.SizeInt32(m.Number)
-	}
+func (m EnumValueDescriptorProto) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Name)
+	s.Int32Field(1, m.Number)
 	if m.Options != nil {
-		n += 1 + proto.SizeMessageLength(m.Options)
+		s.MessageField(1, m.Options)
 	}
+}
+func (m EnumValueDescriptorProto) MarshalStackSize() (n int) {
+	n += 1
 	return n
 }
 func (m *EnumValueDescriptorProto) Unmarshal(data []byte) (err error) {
@@ -916,35 +896,40 @@ func (m *EnumValueDescriptorProto) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m ServiceDescriptorProto) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m ServiceDescriptorProto) MarshalTo(data []byte) (n int, err error) {
-	if m.Name != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Name)
-	}
-	for _, x := range m.Method {
-		n += copy(data[n:], []byte{0x12})
-		n += proto.WriteMessageLength(data[n:], x)
+func (m ServiceDescriptorProto) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Name)
+	for _, x := range m.Method{
+		w.MessageField([]byte{0x12}, x)
 	}
 	if m.Options != nil {
-		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteMessageLength(data[n:], m.Options)
+		w.MessageField([]byte{0x1a}, m.Options)
 	}
-	return n, nil
+	return nil
 }
-func (m ServiceDescriptorProto) MarshalSize() (n int) {
-	if m.Name != "" {
-		n += 1 + proto.SizeStringLength(m.Name)
-	}
-	for _, x := range m.Method {
-		n += 1 + proto.SizeMessageLength(x)
+func (m ServiceDescriptorProto) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Name)
+	for _, x := range m.Method{
+		s.MessageField(1, x)
 	}
 	if m.Options != nil {
-		n += 1 + proto.SizeMessageLength(m.Options)
+		s.MessageField(1, m.Options)
 	}
+}
+func (m ServiceDescriptorProto) MarshalStackSize() (n int) {
+	for _, x := range m.Method {
+		n += 1 + x.MarshalStackSize()
+	}
+	n += 1
 	return n
 }
 func (m *ServiceDescriptorProto) Unmarshal(data []byte) (err error) {
@@ -974,56 +959,39 @@ func (m *ServiceDescriptorProto) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m MethodDescriptorProto) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m MethodDescriptorProto) MarshalTo(data []byte) (n int, err error) {
-	if m.Name != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Name)
-	}
-	if m.InputType != "" {
-		n += copy(data[n:], []byte{0x12})
-		n += proto.WriteStringLength(data[n:], m.InputType)
-	}
-	if m.OutputType != "" {
-		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteStringLength(data[n:], m.OutputType)
-	}
+func (m MethodDescriptorProto) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Name)
+	w.StringField([]byte{0x12}, m.InputType)
+	w.StringField([]byte{0x1a}, m.OutputType)
 	if m.Options != nil {
-		n += copy(data[n:], []byte{0x22})
-		n += proto.WriteMessageLength(data[n:], m.Options)
+		w.MessageField([]byte{0x22}, m.Options)
 	}
-	if m.ClientStreaming != false {
-		n += copy(data[n:], []byte{0x28})
-		n += proto.WriteBool(data[n:], m.ClientStreaming)
-	}
-	if m.ServerStreaming != false {
-		n += copy(data[n:], []byte{0x30})
-		n += proto.WriteBool(data[n:], m.ServerStreaming)
-	}
-	return n, nil
+	w.BoolField([]byte{0x28}, m.ClientStreaming)
+	w.BoolField([]byte{0x30}, m.ServerStreaming)
+	return nil
 }
-func (m MethodDescriptorProto) MarshalSize() (n int) {
-	if m.Name != "" {
-		n += 1 + proto.SizeStringLength(m.Name)
-	}
-	if m.InputType != "" {
-		n += 1 + proto.SizeStringLength(m.InputType)
-	}
-	if m.OutputType != "" {
-		n += 1 + proto.SizeStringLength(m.OutputType)
-	}
+func (m MethodDescriptorProto) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Name)
+	s.StringField(1, m.InputType)
+	s.StringField(1, m.OutputType)
 	if m.Options != nil {
-		n += 1 + proto.SizeMessageLength(m.Options)
+		s.MessageField(1, m.Options)
 	}
-	if m.ClientStreaming != false {
-		n += 1 + proto.SizeBool(m.ClientStreaming)
-	}
-	if m.ServerStreaming != false {
-		n += 1 + proto.SizeBool(m.ServerStreaming)
-	}
+	s.BoolField(1, m.ClientStreaming)
+	s.BoolField(1, m.ServerStreaming)
+}
+func (m MethodDescriptorProto) MarshalStackSize() (n int) {
+	n += 1
 	return n
 }
 func (m *MethodDescriptorProto) Unmarshal(data []byte) (err error) {
@@ -1055,125 +1023,60 @@ func (m *MethodDescriptorProto) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m FileOptions) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m FileOptions) MarshalTo(data []byte) (n int, err error) {
-	if m.JavaPackage != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.JavaPackage)
+func (m FileOptions) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.JavaPackage)
+	w.StringField([]byte{0x42}, m.JavaOuterClassname)
+	w.IntField([]byte{0x48}, int(m.OptimizeFor))
+	w.BoolField([]byte{0x50}, m.JavaMultipleFiles)
+	w.StringField([]byte{0x5a}, m.GoPackage)
+	w.BoolField([]byte{0x80, 0x1}, m.CcGenericServices)
+	w.BoolField([]byte{0x88, 0x1}, m.JavaGenericServices)
+	w.BoolField([]byte{0x90, 0x1}, m.PyGenericServices)
+	w.BoolField([]byte{0xa0, 0x1}, m.JavaGenerateEqualsAndHash)
+	w.BoolField([]byte{0xb8, 0x1}, m.Deprecated)
+	w.BoolField([]byte{0xd8, 0x1}, m.JavaStringCheckUtf8)
+	w.BoolField([]byte{0xf8, 0x1}, m.CcEnableArenas)
+	w.StringField([]byte{0xa2, 0x2}, m.ObjcClassPrefix)
+	w.StringField([]byte{0xaa, 0x2}, m.CsharpNamespace)
+	w.StringField([]byte{0xba, 0x2}, m.SwiftPrefix)
+	for _, x := range m.UninterpretedOption{
+		w.MessageField([]byte{0xba, 0x3e}, x)
 	}
-	if m.JavaOuterClassname != "" {
-		n += copy(data[n:], []byte{0x42})
-		n += proto.WriteStringLength(data[n:], m.JavaOuterClassname)
-	}
-	if int(m.OptimizeFor) != 0 {
-		n += copy(data[n:], []byte{0x48})
-		n += proto.WriteEnum(data[n:], int(m.OptimizeFor))
-	}
-	if m.JavaMultipleFiles != false {
-		n += copy(data[n:], []byte{0x50})
-		n += proto.WriteBool(data[n:], m.JavaMultipleFiles)
-	}
-	if m.GoPackage != "" {
-		n += copy(data[n:], []byte{0x5a})
-		n += proto.WriteStringLength(data[n:], m.GoPackage)
-	}
-	if m.CcGenericServices != false {
-		n += copy(data[n:], []byte{0x80, 0x1})
-		n += proto.WriteBool(data[n:], m.CcGenericServices)
-	}
-	if m.JavaGenericServices != false {
-		n += copy(data[n:], []byte{0x88, 0x1})
-		n += proto.WriteBool(data[n:], m.JavaGenericServices)
-	}
-	if m.PyGenericServices != false {
-		n += copy(data[n:], []byte{0x90, 0x1})
-		n += proto.WriteBool(data[n:], m.PyGenericServices)
-	}
-	if m.JavaGenerateEqualsAndHash != false {
-		n += copy(data[n:], []byte{0xa0, 0x1})
-		n += proto.WriteBool(data[n:], m.JavaGenerateEqualsAndHash)
-	}
-	if m.Deprecated != false {
-		n += copy(data[n:], []byte{0xb8, 0x1})
-		n += proto.WriteBool(data[n:], m.Deprecated)
-	}
-	if m.JavaStringCheckUtf8 != false {
-		n += copy(data[n:], []byte{0xd8, 0x1})
-		n += proto.WriteBool(data[n:], m.JavaStringCheckUtf8)
-	}
-	if m.CcEnableArenas != false {
-		n += copy(data[n:], []byte{0xf8, 0x1})
-		n += proto.WriteBool(data[n:], m.CcEnableArenas)
-	}
-	if m.ObjcClassPrefix != "" {
-		n += copy(data[n:], []byte{0xa2, 0x2})
-		n += proto.WriteStringLength(data[n:], m.ObjcClassPrefix)
-	}
-	if m.CsharpNamespace != "" {
-		n += copy(data[n:], []byte{0xaa, 0x2})
-		n += proto.WriteStringLength(data[n:], m.CsharpNamespace)
-	}
-	if m.SwiftPrefix != "" {
-		n += copy(data[n:], []byte{0xba, 0x2})
-		n += proto.WriteStringLength(data[n:], m.SwiftPrefix)
-	}
-	for _, x := range m.UninterpretedOption {
-		n += copy(data[n:], []byte{0xba, 0x3e})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	return n, nil
+	return nil
 }
-func (m FileOptions) MarshalSize() (n int) {
-	if m.JavaPackage != "" {
-		n += 1 + proto.SizeStringLength(m.JavaPackage)
+func (m FileOptions) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.JavaPackage)
+	s.StringField(1, m.JavaOuterClassname)
+	s.IntField(1, int(m.OptimizeFor))
+	s.BoolField(1, m.JavaMultipleFiles)
+	s.StringField(1, m.GoPackage)
+	s.BoolField(2, m.CcGenericServices)
+	s.BoolField(2, m.JavaGenericServices)
+	s.BoolField(2, m.PyGenericServices)
+	s.BoolField(2, m.JavaGenerateEqualsAndHash)
+	s.BoolField(2, m.Deprecated)
+	s.BoolField(2, m.JavaStringCheckUtf8)
+	s.BoolField(2, m.CcEnableArenas)
+	s.StringField(2, m.ObjcClassPrefix)
+	s.StringField(2, m.CsharpNamespace)
+	s.StringField(2, m.SwiftPrefix)
+	for _, x := range m.UninterpretedOption{
+		s.MessageField(2, x)
 	}
-	if m.JavaOuterClassname != "" {
-		n += 1 + proto.SizeStringLength(m.JavaOuterClassname)
-	}
-	if int(m.OptimizeFor) != 0 {
-		n += 1 + proto.SizeEnum(int(m.OptimizeFor))
-	}
-	if m.JavaMultipleFiles != false {
-		n += 1 + proto.SizeBool(m.JavaMultipleFiles)
-	}
-	if m.GoPackage != "" {
-		n += 1 + proto.SizeStringLength(m.GoPackage)
-	}
-	if m.CcGenericServices != false {
-		n += 2 + proto.SizeBool(m.CcGenericServices)
-	}
-	if m.JavaGenericServices != false {
-		n += 2 + proto.SizeBool(m.JavaGenericServices)
-	}
-	if m.PyGenericServices != false {
-		n += 2 + proto.SizeBool(m.PyGenericServices)
-	}
-	if m.JavaGenerateEqualsAndHash != false {
-		n += 2 + proto.SizeBool(m.JavaGenerateEqualsAndHash)
-	}
-	if m.Deprecated != false {
-		n += 2 + proto.SizeBool(m.Deprecated)
-	}
-	if m.JavaStringCheckUtf8 != false {
-		n += 2 + proto.SizeBool(m.JavaStringCheckUtf8)
-	}
-	if m.CcEnableArenas != false {
-		n += 2 + proto.SizeBool(m.CcEnableArenas)
-	}
-	if m.ObjcClassPrefix != "" {
-		n += 2 + proto.SizeStringLength(m.ObjcClassPrefix)
-	}
-	if m.CsharpNamespace != "" {
-		n += 2 + proto.SizeStringLength(m.CsharpNamespace)
-	}
-	if m.SwiftPrefix != "" {
-		n += 2 + proto.SizeStringLength(m.SwiftPrefix)
-	}
+}
+func (m FileOptions) MarshalStackSize() (n int) {
 	for _, x := range m.UninterpretedOption {
-		n += 2 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1190,7 +1093,11 @@ func (m *FileOptions) Unmarshal(data []byte) (err error) {
 		case 8:
 			m.JavaOuterClassname, err = r.ReadString(t)
 		case 9:
-			err = r.ReadEnum(t, (*proto.Enum)(&m.OptimizeFor))
+			x, err := r.ReadInt(t)
+			if err != nil {
+				return err
+			}
+			m.OptimizeFor = FileOptions_OptimizeMode(x)
 		case 10:
 			m.JavaMultipleFiles, err = r.ReadBool(t)
 		case 11:
@@ -1229,48 +1136,38 @@ func (m *FileOptions) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m MessageOptions) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m MessageOptions) MarshalTo(data []byte) (n int, err error) {
-	if m.MessageSetWireFormat != false {
-		n += copy(data[n:], []byte{0x8})
-		n += proto.WriteBool(data[n:], m.MessageSetWireFormat)
+func (m MessageOptions) MarshalTo(w *proto.Writer) (err error) {
+	w.BoolField([]byte{0x8}, m.MessageSetWireFormat)
+	w.BoolField([]byte{0x10}, m.NoStandardDescriptorAccessor)
+	w.BoolField([]byte{0x18}, m.Deprecated)
+	w.BoolField([]byte{0x38}, m.MapEntry)
+	for _, x := range m.UninterpretedOption{
+		w.MessageField([]byte{0xba, 0x3e}, x)
 	}
-	if m.NoStandardDescriptorAccessor != false {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteBool(data[n:], m.NoStandardDescriptorAccessor)
-	}
-	if m.Deprecated != false {
-		n += copy(data[n:], []byte{0x18})
-		n += proto.WriteBool(data[n:], m.Deprecated)
-	}
-	if m.MapEntry != false {
-		n += copy(data[n:], []byte{0x38})
-		n += proto.WriteBool(data[n:], m.MapEntry)
-	}
-	for _, x := range m.UninterpretedOption {
-		n += copy(data[n:], []byte{0xba, 0x3e})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	return n, nil
+	return nil
 }
-func (m MessageOptions) MarshalSize() (n int) {
-	if m.MessageSetWireFormat != false {
-		n += 1 + proto.SizeBool(m.MessageSetWireFormat)
+func (m MessageOptions) MarshalSize(s *proto.Sizer) {
+	s.BoolField(1, m.MessageSetWireFormat)
+	s.BoolField(1, m.NoStandardDescriptorAccessor)
+	s.BoolField(1, m.Deprecated)
+	s.BoolField(1, m.MapEntry)
+	for _, x := range m.UninterpretedOption{
+		s.MessageField(2, x)
 	}
-	if m.NoStandardDescriptorAccessor != false {
-		n += 1 + proto.SizeBool(m.NoStandardDescriptorAccessor)
-	}
-	if m.Deprecated != false {
-		n += 1 + proto.SizeBool(m.Deprecated)
-	}
-	if m.MapEntry != false {
-		n += 1 + proto.SizeBool(m.MapEntry)
-	}
+}
+func (m MessageOptions) MarshalStackSize() (n int) {
 	for _, x := range m.UninterpretedOption {
-		n += 2 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1304,62 +1201,42 @@ func (m *MessageOptions) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m FieldOptions) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m FieldOptions) MarshalTo(data []byte) (n int, err error) {
-	if int(m.Ctype) != 0 {
-		n += copy(data[n:], []byte{0x8})
-		n += proto.WriteEnum(data[n:], int(m.Ctype))
+func (m FieldOptions) MarshalTo(w *proto.Writer) (err error) {
+	w.IntField([]byte{0x8}, int(m.Ctype))
+	w.BoolField([]byte{0x10}, m.Packed)
+	w.BoolField([]byte{0x18}, m.Deprecated)
+	w.BoolField([]byte{0x28}, m.Lazy)
+	w.IntField([]byte{0x30}, int(m.Jstype))
+	w.BoolField([]byte{0x50}, m.Weak)
+	for _, x := range m.UninterpretedOption{
+		w.MessageField([]byte{0xba, 0x3e}, x)
 	}
-	if m.Packed != false {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteBool(data[n:], m.Packed)
-	}
-	if m.Deprecated != false {
-		n += copy(data[n:], []byte{0x18})
-		n += proto.WriteBool(data[n:], m.Deprecated)
-	}
-	if m.Lazy != false {
-		n += copy(data[n:], []byte{0x28})
-		n += proto.WriteBool(data[n:], m.Lazy)
-	}
-	if int(m.Jstype) != 0 {
-		n += copy(data[n:], []byte{0x30})
-		n += proto.WriteEnum(data[n:], int(m.Jstype))
-	}
-	if m.Weak != false {
-		n += copy(data[n:], []byte{0x50})
-		n += proto.WriteBool(data[n:], m.Weak)
-	}
-	for _, x := range m.UninterpretedOption {
-		n += copy(data[n:], []byte{0xba, 0x3e})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	return n, nil
+	return nil
 }
-func (m FieldOptions) MarshalSize() (n int) {
-	if int(m.Ctype) != 0 {
-		n += 1 + proto.SizeEnum(int(m.Ctype))
+func (m FieldOptions) MarshalSize(s *proto.Sizer) {
+	s.IntField(1, int(m.Ctype))
+	s.BoolField(1, m.Packed)
+	s.BoolField(1, m.Deprecated)
+	s.BoolField(1, m.Lazy)
+	s.IntField(1, int(m.Jstype))
+	s.BoolField(1, m.Weak)
+	for _, x := range m.UninterpretedOption{
+		s.MessageField(2, x)
 	}
-	if m.Packed != false {
-		n += 1 + proto.SizeBool(m.Packed)
-	}
-	if m.Deprecated != false {
-		n += 1 + proto.SizeBool(m.Deprecated)
-	}
-	if m.Lazy != false {
-		n += 1 + proto.SizeBool(m.Lazy)
-	}
-	if int(m.Jstype) != 0 {
-		n += 1 + proto.SizeEnum(int(m.Jstype))
-	}
-	if m.Weak != false {
-		n += 1 + proto.SizeBool(m.Weak)
-	}
+}
+func (m FieldOptions) MarshalStackSize() (n int) {
 	for _, x := range m.UninterpretedOption {
-		n += 2 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1372,7 +1249,11 @@ func (m *FieldOptions) Unmarshal(data []byte) (err error) {
 		}
 		switch id {
 		case 1:
-			err = r.ReadEnum(t, (*proto.Enum)(&m.Ctype))
+			x, err := r.ReadInt(t)
+			if err != nil {
+				return err
+			}
+			m.Ctype = FieldOptions_CType(x)
 		case 2:
 			m.Packed, err = r.ReadBool(t)
 		case 3:
@@ -1380,7 +1261,11 @@ func (m *FieldOptions) Unmarshal(data []byte) (err error) {
 		case 5:
 			m.Lazy, err = r.ReadBool(t)
 		case 6:
-			err = r.ReadEnum(t, (*proto.Enum)(&m.Jstype))
+			x, err := r.ReadInt(t)
+			if err != nil {
+				return err
+			}
+			m.Jstype = FieldOptions_JSType(x)
 		case 10:
 			m.Weak, err = r.ReadBool(t)
 		case 999:
@@ -1397,20 +1282,30 @@ func (m *FieldOptions) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m OneofOptions) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m OneofOptions) MarshalTo(data []byte) (n int, err error) {
-	for _, x := range m.UninterpretedOption {
-		n += copy(data[n:], []byte{0xba, 0x3e})
-		n += proto.WriteMessageLength(data[n:], x)
+func (m OneofOptions) MarshalTo(w *proto.Writer) (err error) {
+	for _, x := range m.UninterpretedOption{
+		w.MessageField([]byte{0xba, 0x3e}, x)
 	}
-	return n, nil
+	return nil
 }
-func (m OneofOptions) MarshalSize() (n int) {
+func (m OneofOptions) MarshalSize(s *proto.Sizer) {
+	for _, x := range m.UninterpretedOption{
+		s.MessageField(2, x)
+	}
+}
+func (m OneofOptions) MarshalStackSize() (n int) {
 	for _, x := range m.UninterpretedOption {
-		n += 2 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1436,34 +1331,34 @@ func (m *OneofOptions) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m EnumOptions) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m EnumOptions) MarshalTo(data []byte) (n int, err error) {
-	if m.AllowAlias != false {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteBool(data[n:], m.AllowAlias)
+func (m EnumOptions) MarshalTo(w *proto.Writer) (err error) {
+	w.BoolField([]byte{0x10}, m.AllowAlias)
+	w.BoolField([]byte{0x18}, m.Deprecated)
+	for _, x := range m.UninterpretedOption{
+		w.MessageField([]byte{0xba, 0x3e}, x)
 	}
-	if m.Deprecated != false {
-		n += copy(data[n:], []byte{0x18})
-		n += proto.WriteBool(data[n:], m.Deprecated)
-	}
-	for _, x := range m.UninterpretedOption {
-		n += copy(data[n:], []byte{0xba, 0x3e})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	return n, nil
+	return nil
 }
-func (m EnumOptions) MarshalSize() (n int) {
-	if m.AllowAlias != false {
-		n += 1 + proto.SizeBool(m.AllowAlias)
+func (m EnumOptions) MarshalSize(s *proto.Sizer) {
+	s.BoolField(1, m.AllowAlias)
+	s.BoolField(1, m.Deprecated)
+	for _, x := range m.UninterpretedOption{
+		s.MessageField(2, x)
 	}
-	if m.Deprecated != false {
-		n += 1 + proto.SizeBool(m.Deprecated)
-	}
+}
+func (m EnumOptions) MarshalStackSize() (n int) {
 	for _, x := range m.UninterpretedOption {
-		n += 2 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1493,27 +1388,32 @@ func (m *EnumOptions) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m EnumValueOptions) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m EnumValueOptions) MarshalTo(data []byte) (n int, err error) {
-	if m.Deprecated != false {
-		n += copy(data[n:], []byte{0x8})
-		n += proto.WriteBool(data[n:], m.Deprecated)
+func (m EnumValueOptions) MarshalTo(w *proto.Writer) (err error) {
+	w.BoolField([]byte{0x8}, m.Deprecated)
+	for _, x := range m.UninterpretedOption{
+		w.MessageField([]byte{0xba, 0x3e}, x)
 	}
-	for _, x := range m.UninterpretedOption {
-		n += copy(data[n:], []byte{0xba, 0x3e})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	return n, nil
+	return nil
 }
-func (m EnumValueOptions) MarshalSize() (n int) {
-	if m.Deprecated != false {
-		n += 1 + proto.SizeBool(m.Deprecated)
+func (m EnumValueOptions) MarshalSize(s *proto.Sizer) {
+	s.BoolField(1, m.Deprecated)
+	for _, x := range m.UninterpretedOption{
+		s.MessageField(2, x)
 	}
+}
+func (m EnumValueOptions) MarshalStackSize() (n int) {
 	for _, x := range m.UninterpretedOption {
-		n += 2 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1541,27 +1441,32 @@ func (m *EnumValueOptions) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m ServiceOptions) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m ServiceOptions) MarshalTo(data []byte) (n int, err error) {
-	if m.Deprecated != false {
-		n += copy(data[n:], []byte{0x88, 0x2})
-		n += proto.WriteBool(data[n:], m.Deprecated)
+func (m ServiceOptions) MarshalTo(w *proto.Writer) (err error) {
+	w.BoolField([]byte{0x88, 0x2}, m.Deprecated)
+	for _, x := range m.UninterpretedOption{
+		w.MessageField([]byte{0xba, 0x3e}, x)
 	}
-	for _, x := range m.UninterpretedOption {
-		n += copy(data[n:], []byte{0xba, 0x3e})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	return n, nil
+	return nil
 }
-func (m ServiceOptions) MarshalSize() (n int) {
-	if m.Deprecated != false {
-		n += 2 + proto.SizeBool(m.Deprecated)
+func (m ServiceOptions) MarshalSize(s *proto.Sizer) {
+	s.BoolField(2, m.Deprecated)
+	for _, x := range m.UninterpretedOption{
+		s.MessageField(2, x)
 	}
+}
+func (m ServiceOptions) MarshalStackSize() (n int) {
 	for _, x := range m.UninterpretedOption {
-		n += 2 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1589,34 +1494,34 @@ func (m *ServiceOptions) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m MethodOptions) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m MethodOptions) MarshalTo(data []byte) (n int, err error) {
-	if m.Deprecated != false {
-		n += copy(data[n:], []byte{0x88, 0x2})
-		n += proto.WriteBool(data[n:], m.Deprecated)
+func (m MethodOptions) MarshalTo(w *proto.Writer) (err error) {
+	w.BoolField([]byte{0x88, 0x2}, m.Deprecated)
+	w.IntField([]byte{0x90, 0x2}, int(m.IdempotencyLevel))
+	for _, x := range m.UninterpretedOption{
+		w.MessageField([]byte{0xba, 0x3e}, x)
 	}
-	if int(m.IdempotencyLevel) != 0 {
-		n += copy(data[n:], []byte{0x90, 0x2})
-		n += proto.WriteEnum(data[n:], int(m.IdempotencyLevel))
-	}
-	for _, x := range m.UninterpretedOption {
-		n += copy(data[n:], []byte{0xba, 0x3e})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	return n, nil
+	return nil
 }
-func (m MethodOptions) MarshalSize() (n int) {
-	if m.Deprecated != false {
-		n += 2 + proto.SizeBool(m.Deprecated)
+func (m MethodOptions) MarshalSize(s *proto.Sizer) {
+	s.BoolField(2, m.Deprecated)
+	s.IntField(2, int(m.IdempotencyLevel))
+	for _, x := range m.UninterpretedOption{
+		s.MessageField(2, x)
 	}
-	if int(m.IdempotencyLevel) != 0 {
-		n += 2 + proto.SizeEnum(int(m.IdempotencyLevel))
-	}
+}
+func (m MethodOptions) MarshalStackSize() (n int) {
 	for _, x := range m.UninterpretedOption {
-		n += 2 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1631,7 +1536,11 @@ func (m *MethodOptions) Unmarshal(data []byte) (err error) {
 		case 33:
 			m.Deprecated, err = r.ReadBool(t)
 		case 34:
-			err = r.ReadEnum(t, (*proto.Enum)(&m.IdempotencyLevel))
+			x, err := r.ReadInt(t)
+			if err != nil {
+				return err
+			}
+			m.IdempotencyLevel = MethodOptions_IdempotencyLevel(x)
 		case 999:
 			x := new(UninterpretedOption)
 			err = r.ReadMessage(t, x)
@@ -1646,62 +1555,42 @@ func (m *MethodOptions) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m UninterpretedOption) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m UninterpretedOption) MarshalTo(data []byte) (n int, err error) {
-	for _, x := range m.Name {
-		n += copy(data[n:], []byte{0x12})
-		n += proto.WriteMessageLength(data[n:], x)
+func (m UninterpretedOption) MarshalTo(w *proto.Writer) (err error) {
+	for _, x := range m.Name{
+		w.MessageField([]byte{0x12}, x)
 	}
-	if m.IdentifierValue != "" {
-		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteStringLength(data[n:], m.IdentifierValue)
-	}
-	if m.PositiveIntValue != 0 {
-		n += copy(data[n:], []byte{0x20})
-		n += proto.WriteUInt64(data[n:], m.PositiveIntValue)
-	}
-	if m.NegativeIntValue != 0 {
-		n += copy(data[n:], []byte{0x28})
-		n += proto.WriteInt64(data[n:], m.NegativeIntValue)
-	}
-	if m.DoubleValue != 0 {
-		n += copy(data[n:], []byte{0x31})
-		n += proto.WriteFloat64(data[n:], m.DoubleValue)
-	}
-	if m.StringValue != nil {
-		n += copy(data[n:], []byte{0x3a})
-		n += proto.WriteBytesLength(data[n:], m.StringValue)
-	}
-	if m.AggregateValue != "" {
-		n += copy(data[n:], []byte{0x42})
-		n += proto.WriteStringLength(data[n:], m.AggregateValue)
-	}
-	return n, nil
+	w.StringField([]byte{0x1a}, m.IdentifierValue)
+	w.UInt64Field([]byte{0x20}, m.PositiveIntValue)
+	w.Int64Field([]byte{0x28}, m.NegativeIntValue)
+	w.Float64Field([]byte{0x31}, m.DoubleValue)
+	w.BytesField([]byte{0x3a}, m.StringValue)
+	w.StringField([]byte{0x42}, m.AggregateValue)
+	return nil
 }
-func (m UninterpretedOption) MarshalSize() (n int) {
+func (m UninterpretedOption) MarshalSize(s *proto.Sizer) {
+	for _, x := range m.Name{
+		s.MessageField(1, x)
+	}
+	s.StringField(1, m.IdentifierValue)
+	s.UInt64Field(1, m.PositiveIntValue)
+	s.Int64Field(1, m.NegativeIntValue)
+	s.Float64Field(1, m.DoubleValue)
+	s.BytesField(1, m.StringValue)
+	s.StringField(1, m.AggregateValue)
+}
+func (m UninterpretedOption) MarshalStackSize() (n int) {
 	for _, x := range m.Name {
-		n += 1 + proto.SizeMessageLength(x)
-	}
-	if m.IdentifierValue != "" {
-		n += 1 + proto.SizeStringLength(m.IdentifierValue)
-	}
-	if m.PositiveIntValue != 0 {
-		n += 1 + proto.SizeUInt64(m.PositiveIntValue)
-	}
-	if m.NegativeIntValue != 0 {
-		n += 1 + proto.SizeInt64(m.NegativeIntValue)
-	}
-	if m.DoubleValue != 0 {
-		n += 1 + proto.SizeFloat64(m.DoubleValue)
-	}
-	if m.StringValue != nil {
-		n += 1 + proto.SizeBytesLength(m.StringValue)
-	}
-	if m.AggregateValue != "" {
-		n += 1 + proto.SizeStringLength(m.AggregateValue)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1739,28 +1628,26 @@ func (m *UninterpretedOption) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m UninterpretedOption_NamePart) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m UninterpretedOption_NamePart) MarshalTo(data []byte) (n int, err error) {
-	if m.NamePart != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.NamePart)
-	} else {
-		return n, errors.New("missing required field: NamePart")
-	}
-	if m.IsExtension != false {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteBool(data[n:], m.IsExtension)
-	} else {
-		return n, errors.New("missing required field: IsExtension")
-	}
-	return n, nil
+func (m UninterpretedOption_NamePart) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.NamePart)
+	w.BoolField([]byte{0x10}, m.IsExtension)
+	return nil
 }
-func (m UninterpretedOption_NamePart) MarshalSize() (n int) {
-	n += 1 + proto.SizeStringLength(m.NamePart)
-	n += 1 + proto.SizeBool(m.IsExtension)
+func (m UninterpretedOption_NamePart) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.NamePart)
+	s.BoolField(1, m.IsExtension)
+}
+func (m UninterpretedOption_NamePart) MarshalStackSize() (n int) {
 	return n
 }
 func (m *UninterpretedOption_NamePart) Unmarshal(data []byte) (err error) {
@@ -1783,20 +1670,30 @@ func (m *UninterpretedOption_NamePart) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m SourceCodeInfo) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m SourceCodeInfo) MarshalTo(data []byte) (n int, err error) {
-	for _, x := range m.Location {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteMessageLength(data[n:], x)
+func (m SourceCodeInfo) MarshalTo(w *proto.Writer) (err error) {
+	for _, x := range m.Location{
+		w.MessageField([]byte{0xa}, x)
 	}
-	return n, nil
+	return nil
 }
-func (m SourceCodeInfo) MarshalSize() (n int) {
+func (m SourceCodeInfo) MarshalSize(s *proto.Sizer) {
+	for _, x := range m.Location{
+		s.MessageField(1, x)
+	}
+}
+func (m SourceCodeInfo) MarshalStackSize() (n int) {
 	for _, x := range m.Location {
-		n += 1 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1822,49 +1719,33 @@ func (m *SourceCodeInfo) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m SourceCodeInfo_Location) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m SourceCodeInfo_Location) MarshalTo(data []byte) (n int, err error) {
-	for _, x := range m.Path {
-		n += copy(data[n:], []byte{0x8})
-		n += proto.WriteInt32(data[n:], x)
-	}
-	for _, x := range m.Span {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteInt32(data[n:], x)
-	}
-	if m.LeadingComments != "" {
-		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteStringLength(data[n:], m.LeadingComments)
-	}
-	if m.TrailingComments != "" {
-		n += copy(data[n:], []byte{0x22})
-		n += proto.WriteStringLength(data[n:], m.TrailingComments)
-	}
-	for _, x := range m.LeadingDetachedComments {
-		n += copy(data[n:], []byte{0x32})
-		n += proto.WriteStringLength(data[n:], x)
-	}
-	return n, nil
+func (m SourceCodeInfo_Location) MarshalTo(w *proto.Writer) (err error) {
+	w.Int32Packed([]byte{0xa}, m.Path)
+	w.Int32Packed([]byte{0x12}, m.Span)
+	w.StringField([]byte{0x1a}, m.LeadingComments)
+	w.StringField([]byte{0x22}, m.TrailingComments)
+	w.StringRepeated([]byte{0x32}, m.LeadingDetachedComments)
+	return nil
 }
-func (m SourceCodeInfo_Location) MarshalSize() (n int) {
-	for _, x := range m.Path {
-		n += 1 + proto.SizeInt32(x)
-	}
-	for _, x := range m.Span {
-		n += 1 + proto.SizeInt32(x)
-	}
-	if m.LeadingComments != "" {
-		n += 1 + proto.SizeStringLength(m.LeadingComments)
-	}
-	if m.TrailingComments != "" {
-		n += 1 + proto.SizeStringLength(m.TrailingComments)
-	}
-	for _, x := range m.LeadingDetachedComments {
-		n += 1 + proto.SizeStringLength(x)
-	}
+func (m SourceCodeInfo_Location) MarshalSize(s *proto.Sizer) {
+	s.Int32Packed(1, m.Path)
+	s.Int32Packed(1, m.Span)
+	s.StringField(1, m.LeadingComments)
+	s.StringField(1, m.TrailingComments)
+	s.StringRepeated(1, m.LeadingDetachedComments)
+}
+func (m SourceCodeInfo_Location) MarshalStackSize() (n int) {
+	n += 2
 	return n
 }
 func (m *SourceCodeInfo_Location) Unmarshal(data []byte) (err error) {
@@ -1893,20 +1774,30 @@ func (m *SourceCodeInfo_Location) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m GeneratedCodeInfo) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m GeneratedCodeInfo) MarshalTo(data []byte) (n int, err error) {
-	for _, x := range m.Annotation {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteMessageLength(data[n:], x)
+func (m GeneratedCodeInfo) MarshalTo(w *proto.Writer) (err error) {
+	for _, x := range m.Annotation{
+		w.MessageField([]byte{0xa}, x)
 	}
-	return n, nil
+	return nil
 }
-func (m GeneratedCodeInfo) MarshalSize() (n int) {
+func (m GeneratedCodeInfo) MarshalSize(s *proto.Sizer) {
+	for _, x := range m.Annotation{
+		s.MessageField(1, x)
+	}
+}
+func (m GeneratedCodeInfo) MarshalStackSize() (n int) {
 	for _, x := range m.Annotation {
-		n += 1 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -1932,42 +1823,31 @@ func (m *GeneratedCodeInfo) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m GeneratedCodeInfo_Annotation) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m GeneratedCodeInfo_Annotation) MarshalTo(data []byte) (n int, err error) {
-	for _, x := range m.Path {
-		n += copy(data[n:], []byte{0x8})
-		n += proto.WriteInt32(data[n:], x)
-	}
-	if m.SourceFile != "" {
-		n += copy(data[n:], []byte{0x12})
-		n += proto.WriteStringLength(data[n:], m.SourceFile)
-	}
-	if m.Begin != 0 {
-		n += copy(data[n:], []byte{0x18})
-		n += proto.WriteInt32(data[n:], m.Begin)
-	}
-	if m.End != 0 {
-		n += copy(data[n:], []byte{0x20})
-		n += proto.WriteInt32(data[n:], m.End)
-	}
-	return n, nil
+func (m GeneratedCodeInfo_Annotation) MarshalTo(w *proto.Writer) (err error) {
+	w.Int32Packed([]byte{0xa}, m.Path)
+	w.StringField([]byte{0x12}, m.SourceFile)
+	w.Int32Field([]byte{0x18}, m.Begin)
+	w.Int32Field([]byte{0x20}, m.End)
+	return nil
 }
-func (m GeneratedCodeInfo_Annotation) MarshalSize() (n int) {
-	for _, x := range m.Path {
-		n += 1 + proto.SizeInt32(x)
-	}
-	if m.SourceFile != "" {
-		n += 1 + proto.SizeStringLength(m.SourceFile)
-	}
-	if m.Begin != 0 {
-		n += 1 + proto.SizeInt32(m.Begin)
-	}
-	if m.End != 0 {
-		n += 1 + proto.SizeInt32(m.End)
-	}
+func (m GeneratedCodeInfo_Annotation) MarshalSize(s *proto.Sizer) {
+	s.Int32Packed(1, m.Path)
+	s.StringField(1, m.SourceFile)
+	s.Int32Field(1, m.Begin)
+	s.Int32Field(1, m.End)
+}
+func (m GeneratedCodeInfo_Annotation) MarshalStackSize() (n int) {
+	n += 1
 	return n
 }
 func (m *GeneratedCodeInfo_Annotation) Unmarshal(data []byte) (err error) {

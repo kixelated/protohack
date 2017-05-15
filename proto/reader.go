@@ -655,17 +655,6 @@ func (r *Reader) readUInt32() (x uint32, err error) {
 	return 0, errors.New("integer overflow")
 }
 
-// TODO optimize
-func (r *Reader) ReadEnum(t WireType, x *Enum) (err error) {
-	temp, err := r.readInt()
-	if err != nil {
-		return err
-	}
-
-	*x = Enum(temp)
-	return nil
-}
-
 func (r *Reader) ReadFixed64(t WireType) (x uint64, err error) {
 	if t != WIRETYPE_64BIT {
 		return 0, errors.New("unexpected wire type")

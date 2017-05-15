@@ -267,6 +267,7 @@ func (g *Generator) writeMessageMethods(message *desc.Message) {
 	g.writeMessageMarshal(message)
 	g.writeMessageMarshalTo(message)
 	g.writeMessageMarshalSize(message)
+	g.writeMessageMarshalStackSize(message)
 	g.writeMessageUnmarshal(message)
 
 	for _, nested := range message.Messages {
@@ -277,9 +278,15 @@ func (g *Generator) writeMessageMethods(message *desc.Message) {
 func (g *Generator) writeMessageMarshal(message *desc.Message) {
 	g.w.Line(`func (m ` + goMessageType(message) + `) Marshal() (data []byte, err error) {`).In()
 
-	g.w.Line(`data = make([]byte, m.MarshalSize())`)
-	g.w.Line(`_, err = m.MarshalTo(data)`)
-	g.w.Line(`return data, err`)
+	g.w.Line(`var s proto.Sizer`)
+	g.w.Line(`s.Grow(m.MarshalStackSize())`)
+	g.w.Line(`m.MarshalSize(&s)`)
+	g.w.Line()
+	g.w.Line(`var w proto.Writer`)
+	g.w.Line(`w.WithSizer(&s)`)
+	g.w.Line(`err = m.MarshalTo(&w)`)
+	g.w.Line()
+	g.w.Line(`return w.Data(), err`)
 
 	g.w.Out().Line(`}`)
 }
@@ -290,131 +297,112 @@ func (g *Generator) writeMessageMarshalTo(message *desc.Message) {
 		return fields[i].Proto.GetNumber() < fields[j].Proto.GetNumber()
 	})
 
-	g.w.Line(`func (m ` + goMessageType(message) + `) MarshalTo(data []byte) (n int, err error) {`).In()
+	g.w.Line(`func (m ` + goMessageType(message) + `) MarshalTo(w *proto.Writer) (err error) {`).In()
 
 	for _, field := range fields {
 		g.writeMessageMarshalToField(field)
 	}
 
-	g.w.Line(`return n, nil`)
+	g.w.Line(`return nil`)
 
 	g.w.Out().Line(`}`)
 }
 
 func (g *Generator) writeMessageMarshalToField(field *desc.Field) {
 	repeated := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED)
-	required := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REQUIRED)
-	// packed := field.Proto.GetOptions().GetPacked() // TODO implement
+	message := (field.Proto.GetType() == proto_desc.FieldDescriptorProto_TYPE_MESSAGE)
+	packed := field.Proto.GetOptions().GetPacked()
 
 	var wireType proto.WireType
 	var method string
-	var zero string
 	var cast string
 
 	switch field.Proto.GetType() {
 	case proto_desc.FieldDescriptorProto_TYPE_DOUBLE:
 		wireType = proto.WIRETYPE_64BIT
-		method = `proto.WriteFloat64`
-		zero = `0`
+		method = `Float64`
 	case proto_desc.FieldDescriptorProto_TYPE_FLOAT:
 		wireType = proto.WIRETYPE_32BIT
-		method = `proto.WriteFloat32`
-		zero = `0`
+		method = `Float32`
 	case proto_desc.FieldDescriptorProto_TYPE_INT64:
 		wireType = proto.WIRETYPE_VARINT
-		method = `proto.WriteInt64`
-		zero = `0`
+		method = `Int64`
 	case proto_desc.FieldDescriptorProto_TYPE_UINT64:
 		wireType = proto.WIRETYPE_VARINT
-		method = `proto.WriteUInt64`
-		zero = `0`
+		method = `UInt64`
 	case proto_desc.FieldDescriptorProto_TYPE_INT32:
 		wireType = proto.WIRETYPE_VARINT
-		method = `proto.WriteInt32`
-		zero = `0`
+		method = `Int32`
 	case proto_desc.FieldDescriptorProto_TYPE_UINT32:
 		wireType = proto.WIRETYPE_VARINT
-		method = `proto.WriteUInt32`
-		zero = `0`
+		method = `UInt32`
 	case proto_desc.FieldDescriptorProto_TYPE_FIXED64:
 		wireType = proto.WIRETYPE_64BIT
-		method = `proto.WriteFixed64`
-		zero = `0`
+		method = `FixedUInt64`
 	case proto_desc.FieldDescriptorProto_TYPE_FIXED32:
 		wireType = proto.WIRETYPE_32BIT
-		method = `proto.WriteFixed32`
-		zero = `0`
+		method = `FixedUInt32`
 	case proto_desc.FieldDescriptorProto_TYPE_BOOL:
 		wireType = proto.WIRETYPE_VARINT
-		method = `proto.WriteBool`
-		zero = `false`
+		method = `Bool`
 	case proto_desc.FieldDescriptorProto_TYPE_STRING:
 		wireType = proto.WIRETYPE_LENGTH
-		method = `proto.WriteStringLength`
-		zero = `""`
+		method = `String`
 	case proto_desc.FieldDescriptorProto_TYPE_GROUP:
 		panic("groups are not supported")
 	case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
 		wireType = proto.WIRETYPE_LENGTH
-		method = `proto.WriteMessageLength`
-		zero = `nil`
+		method = `Message`
 	case proto_desc.FieldDescriptorProto_TYPE_BYTES:
 		wireType = proto.WIRETYPE_LENGTH
-		method = `proto.WriteBytesLength`
-		zero = `nil`
+		method = `Bytes`
 	case proto_desc.FieldDescriptorProto_TYPE_ENUM:
 		wireType = proto.WIRETYPE_VARINT
-		method = `proto.WriteEnum`
+		method = `Int`
 		cast = `int`
-		zero = `0`
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED32:
 		wireType = proto.WIRETYPE_32BIT
-		method = `proto.WriteSFixed32`
-		zero = `0`
+		method = `FixedInt32`
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED64:
 		wireType = proto.WIRETYPE_64BIT
-		method = `proto.WriteSFixed64`
-		zero = `0`
+		method = `FixedInt64`
 	case proto_desc.FieldDescriptorProto_TYPE_SINT32:
 		wireType = proto.WIRETYPE_VARINT
-		method = `proto.WriteSInt32`
-		zero = `0`
+		method = `SInt32`
 	case proto_desc.FieldDescriptorProto_TYPE_SINT64:
 		wireType = proto.WIRETYPE_VARINT
-		method = `proto.WriteSInt64`
-		zero = `0`
+		method = `SInt64`
 	}
 
 	name := `m.` + goFieldName(field)
 
-	if repeated {
-		g.w.Line(`for _, x := range ` + name + ` {`).In()
-		name = `x`
+	if packed {
+		method = method + `Packed`
+		wireType = proto.WIRETYPE_LENGTH
+	} else if repeated {
+		method = method + `Repeated`
+	} else {
+		method = method + `Field`
 	}
 
 	if cast != "" {
 		name = cast + `(` + name + `)`
 	}
 
-	if !repeated {
-		g.w.Line(`if ` + name + ` != ` + zero + ` {`).In()
+	tag := proto.EncodeTag(int(field.Proto.GetNumber()), wireType)
+	tagStr := fmt.Sprintf("%#v", tag)
+
+	if repeated && message {
+		g.w.Line(`for _, x := range ` + name + `{`).In()
+		g.w.Line(`w.MessageField(` + tagStr + `, x)`)
+		g.w.Out().Line(`}`)
+	} else if message {
+		g.w.Line(`if ` + name + ` != nil {`).In()
+		g.w.Line(`w.MessageField(` + tagStr + `, ` + name + `)`)
+		g.w.Out().Line(`}`)
+	} else {
+		g.w.Line(`w.` + method + `(` + tagStr + `, ` + name + `)`)
 	}
-
-	// TODO Make a better interface.
-	keySize := proto.SizeKey(int(field.Proto.GetNumber()))
-	keyData := make([]byte, keySize)
-	proto.WriteKey(keyData, int(field.Proto.GetNumber()), wireType)
-
-	g.w.Line(`n += copy(data[n:], ` + fmt.Sprintf("%#v", keyData) + `)`)
-
-	g.w.Line(`n += ` + method + `(data[n:], ` + name + `)`)
-
-	if !repeated && required {
-		g.w.Out().Line(`} else {`).In()
-		g.w.Line(`return n, errors.New("missing required field: ` + goFieldName(field) + `")`)
-	}
-
-	g.w.Out().Line(`}`)
 }
 
 func (g *Generator) writeMessageMarshalSize(message *desc.Message) {
@@ -423,111 +411,124 @@ func (g *Generator) writeMessageMarshalSize(message *desc.Message) {
 		return fields[i].Proto.GetNumber() < fields[j].Proto.GetNumber()
 	})
 
-	g.w.Line(`func (m ` + goMessageType(message) + `) MarshalSize() (n int) {`).In()
+	g.w.Line(`func (m ` + goMessageType(message) + `) MarshalSize(s *proto.Sizer) {`).In()
 
 	for _, field := range fields {
 		g.writeMessageMarshalSizeField(field)
 	}
-
-	g.w.Line(`return n`)
 
 	g.w.Out().Line(`}`)
 }
 
 func (g *Generator) writeMessageMarshalSizeField(field *desc.Field) {
 	repeated := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED)
-	required := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REQUIRED)
-	// TODO
-	// packed := field.Proto.GetOptions().GetPacked()
+	message := (field.Proto.GetType() == proto_desc.FieldDescriptorProto_TYPE_MESSAGE)
+	packed := field.Proto.GetOptions().GetPacked()
 
 	var method string
-	var zero string
 	var cast string
 
 	switch field.Proto.GetType() {
 	case proto_desc.FieldDescriptorProto_TYPE_DOUBLE:
-		method = `proto.SizeFloat64`
-		zero = `0`
+		method = `Float64`
 	case proto_desc.FieldDescriptorProto_TYPE_FLOAT:
-		method = `proto.SizeFloat32`
-		zero = `0`
+		method = `Float32`
 	case proto_desc.FieldDescriptorProto_TYPE_INT64:
-		method = `proto.SizeInt64`
-		zero = `0`
+		method = `Int64`
 	case proto_desc.FieldDescriptorProto_TYPE_UINT64:
-		method = `proto.SizeUInt64`
-		zero = `0`
+		method = `UInt64`
 	case proto_desc.FieldDescriptorProto_TYPE_INT32:
-		method = `proto.SizeInt32`
-		zero = `0`
+		method = `Int32`
 	case proto_desc.FieldDescriptorProto_TYPE_UINT32:
-		method = `proto.SizeUInt32`
-		zero = `0`
+		method = `UInt32`
 	case proto_desc.FieldDescriptorProto_TYPE_FIXED64:
-		method = `proto.SizeFixed64`
-		zero = `0`
+		method = `FixedUInt64`
 	case proto_desc.FieldDescriptorProto_TYPE_FIXED32:
-		method = `proto.SizeFixed32`
-		zero = `0`
+		method = `FixedUInt32`
 	case proto_desc.FieldDescriptorProto_TYPE_BOOL:
-		method = `proto.SizeBool`
-		zero = `false`
+		method = `Bool`
 	case proto_desc.FieldDescriptorProto_TYPE_STRING:
-		method = `proto.SizeStringLength`
-		zero = `""`
+		method = `String`
 	case proto_desc.FieldDescriptorProto_TYPE_GROUP:
 		panic("groups are not supported")
 	case proto_desc.FieldDescriptorProto_TYPE_MESSAGE:
-		method = `proto.SizeMessageLength`
-		zero = `nil`
+		method = `Message`
 	case proto_desc.FieldDescriptorProto_TYPE_BYTES:
-		method = `proto.SizeBytesLength`
-		zero = `nil`
+		method = `Bytes`
 	case proto_desc.FieldDescriptorProto_TYPE_ENUM:
-		method = `proto.SizeEnum`
+		method = `Int`
 		cast = `int`
-		zero = `0`
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED32:
-		method = `proto.SizeSFixed32`
-		zero = `0`
+		method = `FixedInt32`
 	case proto_desc.FieldDescriptorProto_TYPE_SFIXED64:
-		method = `proto.SizeSFixed64`
-		zero = `0`
+		method = `FixedInt64`
 	case proto_desc.FieldDescriptorProto_TYPE_SINT32:
-		method = `proto.SizeSInt32`
-		zero = `0`
+		method = `Int32`
 	case proto_desc.FieldDescriptorProto_TYPE_SINT64:
-		method = `proto.SizeSInt64`
-		zero = `0`
+		method = `Int64`
 	}
 
 	name := `m.` + goFieldName(field)
-
-	if repeated {
-		g.w.Line(`for _, x := range ` + name + ` {`).In()
-		name = `x`
-	}
 
 	if cast != "" {
 		name = cast + `(` + name + `)`
 	}
 
-	if !required && !repeated {
-		g.w.Line(`if ` + name + ` != ` + zero + ` {`).In()
+	if packed {
+		method = method + `Packed`
+	} else if repeated {
+		method = method + `Repeated`
+	} else {
+		method = method + `Field`
 	}
 
-	size := proto.SizeKey(int(field.Proto.GetNumber()))
-	sizeStr := strconv.FormatInt(int64(size), 10)
+	tag := proto.EncodeTag(int(field.Proto.GetNumber()), 0)
+	tagSize := len(tag)
+	tagSizeStr := fmt.Sprintf("%d", tagSize)
 
-	g.w.Line(`n += ` + sizeStr + ` + ` + method + `(` + name + `)`)
-
-	if !required && !repeated {
+	if repeated && message {
+		g.w.Line(`for _, x := range ` + name + `{`).In()
+		g.w.Line(`s.MessageField(` + tagSizeStr + `, x)`)
 		g.w.Out().Line(`}`)
+	} else if message {
+		g.w.Line(`if ` + name + ` != nil {`).In()
+		g.w.Line(`s.MessageField(` + tagSizeStr + `, ` + name + `)`)
+		g.w.Out().Line(`}`)
+	} else {
+		g.w.Line(`s.` + method + `(` + tagSizeStr + `, ` + name + `)`)
+	}
+}
+
+func (g *Generator) writeMessageMarshalStackSize(message *desc.Message) {
+	g.w.Line(`func (m ` + goMessageType(message) + `) MarshalStackSize() (n int) {`).In()
+
+	var n int
+
+	for _, field := range message.Fields {
+		repeated := (field.Proto.GetLabel() == proto_desc.FieldDescriptorProto_LABEL_REPEATED)
+		message := (field.Proto.GetType() == proto_desc.FieldDescriptorProto_TYPE_MESSAGE)
+		packed := field.Proto.GetOptions().GetPacked()
+
+		if repeated && packed {
+			// TODO Ignore fixed types
+			n += 1
+		} else if repeated && message {
+			name := `m.` + goFieldName(field)
+			g.w.Line(`for _, x := range ` + name + ` {`).In()
+			g.w.Line(`n += 1 + x.MarshalStackSize()`)
+			g.w.Out().Line(`}`)
+		} else if message {
+			n += 1
+		}
 	}
 
-	if repeated {
-		g.w.Out().Line(`}`)
+	if n > 0 {
+		g.w.Line(`n += ` + fmt.Sprintf("%d", n))
 	}
+
+	g.w.Line(`return n`)
+
+	g.w.Out().Line(`}`)
 }
 
 func (g *Generator) writeMessageUnmarshal(message *desc.Message) {
@@ -632,7 +633,12 @@ func (g *Generator) writeMessageUnmarshalField(field *desc.Field) {
 			g.w.Line(name + ` = append(` + name + `, ` + goElemType(field) + `(y))`)
 			g.w.Out().Line(`}`)
 		} else {
-			g.w.Line(`err = r.ReadEnum(t, (*proto.Enum)(&` + name + `))`)
+			g.w.Line(`x, err := r.ReadInt(t)`)
+			g.w.Line(`if err != nil {`).In()
+			g.w.Line(`return err`)
+			g.w.Out().Line(`}`)
+
+			g.w.Line(name + ` = ` + goElemType(field) + `(x)`)
 		}
 	} else {
 		if repeated {

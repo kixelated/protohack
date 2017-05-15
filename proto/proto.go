@@ -11,13 +11,18 @@ const (
 	WIRETYPE_32BIT       WireType = 5
 )
 
-type Enum int
-
-type MarshallerTo interface {
-	MarshalTo(data []byte) (n int, err error)
-	MarshalSize() (n int)
+type Marshaller interface {
+	Marshal() (data []byte, err error)
 }
 
 type Unmarshaller interface {
 	Unmarshal(data []byte) (err error)
+}
+
+type MarshallerTo interface {
+	MarshalTo(w *Writer) (err error)
+}
+
+type MarshallerSize interface {
+	MarshalSize(s *Sizer)
 }

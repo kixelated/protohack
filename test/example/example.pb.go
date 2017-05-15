@@ -20,41 +20,36 @@ type Person_PhoneNumber struct {
 	Type Person_PhoneType
 }
 func (m Person) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m Person) MarshalTo(data []byte) (n int, err error) {
-	if m.Name != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Name)
-	} else {
-		return n, errors.New("missing required field: Name")
+func (m Person) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Name)
+	w.Int32Field([]byte{0x10}, m.Id)
+	w.StringField([]byte{0x1a}, m.Email)
+	for _, x := range m.Phone{
+		w.MessageField([]byte{0x22}, x)
 	}
-	if m.Id != 0 {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteInt32(data[n:], m.Id)
-	} else {
-		return n, errors.New("missing required field: Id")
-	}
-	if m.Email != "" {
-		n += copy(data[n:], []byte{0x1a})
-		n += proto.WriteStringLength(data[n:], m.Email)
-	}
-	for _, x := range m.Phone {
-		n += copy(data[n:], []byte{0x22})
-		n += proto.WriteMessageLength(data[n:], x)
-	}
-	return n, nil
+	return nil
 }
-func (m Person) MarshalSize() (n int) {
-	n += 1 + proto.SizeStringLength(m.Name)
-	n += 1 + proto.SizeInt32(m.Id)
-	if m.Email != "" {
-		n += 1 + proto.SizeStringLength(m.Email)
+func (m Person) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Name)
+	s.Int32Field(1, m.Id)
+	s.StringField(1, m.Email)
+	for _, x := range m.Phone{
+		s.MessageField(1, x)
 	}
+}
+func (m Person) MarshalStackSize() (n int) {
 	for _, x := range m.Phone {
-		n += 1 + proto.SizeMessageLength(x)
+		n += 1 + x.MarshalStackSize()
 	}
 	return n
 }
@@ -86,28 +81,26 @@ func (m *Person) Unmarshal(data []byte) (err error) {
 	return nil
 }
 func (m Person_PhoneNumber) Marshal() (data []byte, err error) {
-	data = make([]byte, m.MarshalSize())
-	_, err = m.MarshalTo(data)
-	return data, err
+	var s proto.Sizer
+	s.Grow(m.MarshalStackSize())
+	m.MarshalSize(&s)
+	
+	var w proto.Writer
+	w.WithSizer(&s)
+	err = m.MarshalTo(&w)
+	
+	return w.Data(), err
 }
-func (m Person_PhoneNumber) MarshalTo(data []byte) (n int, err error) {
-	if m.Number != "" {
-		n += copy(data[n:], []byte{0xa})
-		n += proto.WriteStringLength(data[n:], m.Number)
-	} else {
-		return n, errors.New("missing required field: Number")
-	}
-	if int(m.Type) != 0 {
-		n += copy(data[n:], []byte{0x10})
-		n += proto.WriteEnum(data[n:], int(m.Type))
-	}
-	return n, nil
+func (m Person_PhoneNumber) MarshalTo(w *proto.Writer) (err error) {
+	w.StringField([]byte{0xa}, m.Number)
+	w.IntField([]byte{0x10}, int(m.Type))
+	return nil
 }
-func (m Person_PhoneNumber) MarshalSize() (n int) {
-	n += 1 + proto.SizeStringLength(m.Number)
-	if int(m.Type) != 0 {
-		n += 1 + proto.SizeEnum(int(m.Type))
-	}
+func (m Person_PhoneNumber) MarshalSize(s *proto.Sizer) {
+	s.StringField(1, m.Number)
+	s.IntField(1, int(m.Type))
+}
+func (m Person_PhoneNumber) MarshalStackSize() (n int) {
 	return n
 }
 func (m *Person_PhoneNumber) Unmarshal(data []byte) (err error) {
@@ -121,7 +114,11 @@ func (m *Person_PhoneNumber) Unmarshal(data []byte) (err error) {
 		case 1:
 			m.Number, err = r.ReadString(t)
 		case 2:
-			err = r.ReadEnum(t, (*proto.Enum)(&m.Type))
+			x, err := r.ReadInt(t)
+			if err != nil {
+				return err
+			}
+			m.Type = Person_PhoneType(x)
 		}
 		if err != nil {
 			return err
